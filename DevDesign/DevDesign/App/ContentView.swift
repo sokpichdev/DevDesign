@@ -1,9 +1,9 @@
+// ContentView.swift
+// DevDesign — Features/Dashboard/ContentView.swift
 //
-//  ContentView.swift
-//  DevDesign
-//
-//  Created by Sok Pich on 08/03/2026.
-//
+// Updated after Phase 2 Steps 7 & 8.
+// Phase 1: all 4 features wired ✅
+// Phase 2: Type Scale + Font Pairing wired ✅ · Spacing + SF Symbols still coming
 
 import SwiftUI
 import SwiftData
@@ -308,7 +308,7 @@ struct FeatureCard: Identifiable {
             icon: "arrow.left.and.right",
             accentColor: Color(hex: "#FF9F0A"),
             phase: 2,
-            destination: AnyView(PlaceholderView(title: "Spacing System"))
+            destination: AnyView(SpacingSystemView())
         ),
         FeatureCard(
             title: "SF Symbols",
