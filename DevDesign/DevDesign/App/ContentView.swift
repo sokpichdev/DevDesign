@@ -340,7 +340,7 @@ struct FeatureCard: Identifiable {
             icon: "circles.hexagonpath.fill",
             accentColor: Color(hex: "#FF6B6B"),
             phase: 3,
-            destination: AnyView(PlaceholderView(title: "Gradient Builder"))
+            destination: AnyView(GradientBuilderView())
         ),
         FeatureCard(
             title: "Component Snippets",
