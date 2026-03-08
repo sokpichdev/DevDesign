@@ -92,23 +92,43 @@ enum ContrastEngine {
 
     /// Suggest a foreground color that passes WCAG AA on the given background.
     /// Returns a darkened or lightened version of the original foreground.
+    ///
+    /// Direction: compare fg vs bg luminance to determine which end
+    /// (black or white) gives higher max contrast, then step that way.
+    ///   bg lighter than fg → darken fg
+    ///   bg darker than fg  → lighten fg
+    /// Falls back to opposite direction if primary fails.
     static func suggestPassingColor(
         foreground: DevColor,
         background: DevColor,
         targetRatio: Double = 4.5,
-        maxIterations: Int = 50
+        maxIterations: Int = 60
     ) -> DevColor? {
+        let fgLum = foreground.luminance
+        let bgLum = background.luminance
+
+        // Move fg AWAY from bg luminance for maximum contrast gain
+        let shouldDarken = bgLum >= fgLum
         var candidate = foreground
-        let bgLuminance = background.luminance
 
         for _ in 0..<maxIterations {
             let ratio = contrastRatio(foreground: candidate, background: background)
             if ratio >= targetRatio { return candidate }
-            // Adjust toward higher contrast
-            candidate = bgLuminance > 0.5
+            candidate = shouldDarken
                 ? candidate.darkened(by: 0.05)
                 : candidate.lightened(by: 0.05)
         }
+
+        // Primary direction failed — try opposite from original
+        candidate = foreground
+        for _ in 0..<maxIterations {
+            let ratio = contrastRatio(foreground: candidate, background: background)
+            if ratio >= targetRatio { return candidate }
+            candidate = shouldDarken
+                ? candidate.lightened(by: 0.05)
+                : candidate.darkened(by: 0.05)
+        }
+
         return nil
     }
 }
