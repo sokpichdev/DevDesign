@@ -348,7 +348,7 @@ struct FeatureCard: Identifiable {
             icon: "rectangle.3.group.fill",
             accentColor: Color(hex: "#32D74B"),
             phase: 3,
-            destination: AnyView(PlaceholderView(title: "Component Snippets"))
+            destination: AnyView(ComponentSnippetsView())
         ),
         FeatureCard(
             title: "Layout Inspector",

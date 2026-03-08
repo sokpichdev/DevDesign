@@ -498,10 +498,10 @@ struct StaticGradientFill: View {
     var body: some View {
         Rectangle()
             .fill(style)
+            .drawingGroup()          // GPU render caching
             .transaction { t in
                 t.animation = nil
             }
-            .animation(nil, value: UUID())
     }
 }
 // MARK: - Preview
