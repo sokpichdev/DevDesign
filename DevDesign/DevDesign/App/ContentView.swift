@@ -255,7 +255,7 @@ struct FeatureCard: Identifiable {
             icon: "swatchpalette.fill",
             accentColor: Color(hex: "#7B6EF6"),
             phase: 1,
-            destination: AnyView(PlaceholderView(title: "Palette Generator"))
+            destination: AnyView(PaletteGeneratorView())
         ),
         FeatureCard(
             title: "Color Picker",
