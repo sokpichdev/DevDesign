@@ -20,34 +20,33 @@ struct DashboardView: View {
 
     @State private var greeting: String = DashboardView.timeGreeting()
 
-    // Feature card data — drives the grid
     private let features: [FeatureCard] = FeatureCard.all
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background
                 DSColors.Preview.backgroundPrimary
                     .ignoresSafeArea()
 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
 
-                        // ── Header ──────────────────────────────────────
+                        // ── Header ──────────────────────────────────────────
                         headerSection
 
-                        // ── Phase 1 — Color Tools ───────────────────────
+                        // ── Phase 1 — Color Tools ────────────────────────────
                         sectionHeader(title: "Color Tools", subtitle: "Phase 1")
                             .padding(.top, DSSpacing.lg)
 
                         featuresGrid(cards: features.filter { $0.phase == 1 })
 
+                        // ── Phase 2 — Typography & Spacing ───────────────────
                         sectionHeader(title: "Typography & Spacing", subtitle: "Phase 2")
-                            .padding(.top, DSSpacing.lg)
-                        
+                            .padding(.top, DSSpacing.xl)
+
                         featuresGrid(cards: features.filter { $0.phase == 2 })
-                        
-                        // ── Coming Soon ─────────────────────────────────
+
+                        // ── Coming Soon — Phases 3–5 ─────────────────────────
                         sectionHeader(title: "Coming Soon", subtitle: "Phases 3–5")
                             .padding(.top, DSSpacing.xl)
 
@@ -62,7 +61,7 @@ struct DashboardView: View {
         }
     }
 
-    // MARK: - Header Section
+    // MARK: - Header
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: DSSpacing.xs) {
             HStack {
@@ -70,13 +69,11 @@ struct DashboardView: View {
                     Text(greeting)
                         .font(DSTypography.labelLarge)
                         .foregroundStyle(DSColors.Preview.accent)
-
                     Text("DevDesign")
                         .font(DSTypography.displayLarge)
                         .foregroundStyle(DSColors.Preview.textPrimary)
                 }
                 Spacer()
-                // App icon / avatar placeholder
                 ZStack {
                     Circle()
                         .fill(DSColors.Preview.accentMuted)
@@ -110,7 +107,7 @@ struct DashboardView: View {
         }
     }
 
-    // MARK: - Features Grid (2 columns)
+    // MARK: - Features Grid
     private func featuresGrid(cards: [FeatureCard]) -> some View {
         LazyVGrid(
             columns: [
@@ -136,7 +133,7 @@ struct DashboardView: View {
         .padding(.top, DSSpacing.sm)
     }
 
-    // MARK: - Greeting Helper
+    // MARK: - Greeting
     static func timeGreeting() -> String {
         let hour = Calendar.current.component(.hour, from: .now)
         switch hour {
@@ -156,7 +153,6 @@ struct FeatureCardView: View {
     var body: some View {
         NavigationLink(destination: card.destination) {
             VStack(alignment: .leading, spacing: DSSpacing.cardSpacing) {
-                // Icon
                 ZStack {
                     RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
                         .fill(card.accentColor.opacity(0.15))
@@ -168,13 +164,11 @@ struct FeatureCardView: View {
 
                 Spacer()
 
-                // Title + Subtitle
                 VStack(alignment: .leading, spacing: 2) {
                     Text(card.title)
                         .font(DSTypography.headingSmall)
                         .foregroundStyle(DSColors.Preview.textPrimary)
                         .lineLimit(1)
-
                     Text(card.subtitle)
                         .font(DSTypography.labelMedium)
                         .foregroundStyle(DSColors.Preview.textSecondary)
@@ -183,7 +177,8 @@ struct FeatureCardView: View {
             }
             .padding(DSSpacing.cardPadding)
             .frame(maxWidth: .infinity, minHeight: 140, alignment: .topLeading)
-            .background(DSColors.Preview.surfaceDefault, in: RoundedRectangle(cornerRadius: DSSpacing.Radius.md))
+            .background(DSColors.Preview.surfaceDefault,
+                        in: RoundedRectangle(cornerRadius: DSSpacing.Radius.md))
             .overlay(
                 RoundedRectangle(cornerRadius: DSSpacing.Radius.md)
                     .strokeBorder(DSColors.Preview.borderSubtle, lineWidth: 1)
@@ -200,7 +195,7 @@ struct FeatureCardView: View {
     }
 }
 
-// MARK: - Coming Soon Row View
+// MARK: - Coming Soon Row
 struct ComingSoonRowView: View {
     let item: ComingSoonItem
 
@@ -234,7 +229,8 @@ struct ComingSoonRowView: View {
                 .background(DSColors.Preview.backgroundTertiary, in: Capsule())
         }
         .padding(DSSpacing.sm)
-        .background(DSColors.Preview.surfaceDefault, in: RoundedRectangle(cornerRadius: DSSpacing.Radius.sm))
+        .background(DSColors.Preview.surfaceDefault,
+                    in: RoundedRectangle(cornerRadius: DSSpacing.Radius.sm))
         .overlay(
             RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
                 .strokeBorder(DSColors.Preview.borderSubtle, lineWidth: 1)
@@ -242,7 +238,7 @@ struct ComingSoonRowView: View {
     }
 }
 
-// MARK: - Data Models for Dashboard
+// MARK: - FeatureCard Data
 
 struct FeatureCard: Identifiable {
     let id = UUID()
@@ -254,6 +250,8 @@ struct FeatureCard: Identifiable {
     let destination: AnyView
 
     static var all: [FeatureCard] = [
+
+        // ── Phase 1 — Color Tools ──────────────────────────────────
         FeatureCard(
             title: "Palette Generator",
             subtitle: "Complementary, triadic & more",
@@ -286,6 +284,8 @@ struct FeatureCard: Identifiable {
             phase: 1,
             destination: AnyView(SavedPalettesView())
         ),
+
+        // ── Phase 2 — Typography & Spacing ────────────────────────
         FeatureCard(
             title: "Type Scale",
             subtitle: "Modular scale generator",
@@ -293,9 +293,36 @@ struct FeatureCard: Identifiable {
             accentColor: Color(hex: "#30D158"),
             phase: 2,
             destination: AnyView(TypeScaleView())
-        )
+        ),
+        FeatureCard(
+            title: "Font Pairing",
+            subtitle: "Curated pairs + Google Fonts",
+            icon: "character.textbox",
+            accentColor: Color(hex: "#64D2FF"),
+            phase: 2,
+            destination: AnyView(FontPairingView())
+        ),
+        FeatureCard(
+            title: "Spacing System",
+            subtitle: "4pt grid + token export",
+            icon: "arrow.left.and.right",
+            accentColor: Color(hex: "#FF9F0A"),
+            phase: 2,
+            destination: AnyView(PlaceholderView(title: "Spacing System"))
+        ),
+        FeatureCard(
+            title: "SF Symbols",
+            subtitle: "Search, preview & copy",
+            icon: "square.grid.2x2",
+            accentColor: Color(hex: "#BF5AF2"),
+            phase: 2,
+            destination: AnyView(PlaceholderView(title: "SF Symbols Browser"))
+        ),
     ]
 }
+
+// MARK: - ComingSoonItem Data
+// Phase 2 fully promoted to FeatureCards — only Phases 3–5 remain here.
 
 struct ComingSoonItem: Identifiable {
     let id = UUID()
@@ -304,18 +331,15 @@ struct ComingSoonItem: Identifiable {
     let phase: String
 
     static var all: [ComingSoonItem] = [
-        ComingSoonItem(title: "Typography & Spacing",  icon: "textformat",              phase: "Phase 2"),
-        ComingSoonItem(title: "Font Pairing Tool",     icon: "character.textbox",       phase: "Phase 2"),
-        ComingSoonItem(title: "SF Symbols Browser",    icon: "square.grid.2x2",         phase: "Phase 2"),
-        ComingSoonItem(title: "Component Snippets",    icon: "rectangle.3.group.fill",  phase: "Phase 3"),
-        ComingSoonItem(title: "Shadow Playground",     icon: "shadow",                  phase: "Phase 3"),
+        ComingSoonItem(title: "Component Snippets",    icon: "rectangle.3.group.fill",   phase: "Phase 3"),
+        ComingSoonItem(title: "Shadow Playground",     icon: "shadow",                   phase: "Phase 3"),
         ComingSoonItem(title: "Gradient Builder",      icon: "circles.hexagonpath.fill", phase: "Phase 3"),
-        ComingSoonItem(title: "App Icon Generator",    icon: "app.fill",                phase: "Phase 4"),
-        ComingSoonItem(title: "AI Palette from Prompt",icon: "sparkles",                phase: "Phase 5"),
+        ComingSoonItem(title: "App Icon Generator",    icon: "app.fill",                 phase: "Phase 4"),
+        ComingSoonItem(title: "AI Palette from Prompt",icon: "sparkles",                 phase: "Phase 5"),
     ]
 }
 
-// MARK: - Placeholder View (replaced per feature step)
+// MARK: - Placeholder
 struct PlaceholderView: View {
     let title: String
     var body: some View {
@@ -338,7 +362,8 @@ struct PlaceholderView: View {
     }
 }
 
-//// MARK: - Preview
-//#Preview {
-//    DashboardView()
-//}
+// MARK: - Preview
+#Preview {
+    DashboardView()
+        .modelContainer(for: [SavedPalette.self, SavedColor.self], inMemory: true)
+}
