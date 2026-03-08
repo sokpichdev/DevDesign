@@ -316,7 +316,7 @@ struct FeatureCard: Identifiable {
             icon: "square.grid.2x2",
             accentColor: Color(hex: "#BF5AF2"),
             phase: 2,
-            destination: AnyView(PlaceholderView(title: "SF Symbols Browser"))
+            destination: AnyView(SFSymbolsView())
         ),
     ]
 }
