@@ -279,7 +279,7 @@ struct FeatureCard: Identifiable {
             icon: "bookmark.fill",
             accentColor: Color(hex: "#FF9F0A"),
             phase: 1,
-            destination: AnyView(PlaceholderView(title: "Saved Palettes"))
+            destination: AnyView(SavedPalettesView())
         )
     ]
 }
