@@ -271,7 +271,7 @@ struct FeatureCard: Identifiable {
             icon: "circle.lefthalf.filled",
             accentColor: Color(hex: "#34C759"),
             phase: 1,
-            destination: AnyView(PlaceholderView(title: "Contrast Checker"))
+            destination: AnyView(ContrastCheckerView())
         ),
         FeatureCard(
             title: "Saved Palettes",
