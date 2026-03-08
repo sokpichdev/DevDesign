@@ -1,11 +1,3 @@
-//
-//  ColorWheelPickerView.swift
-//  DevDesign
-//
-//  Created by Sok Pich on 08/03/2026.
-//
-
-
 // ColorWheelPickerView.swift
 // DevDesign — Features/PaletteGenerator/ColorWheelPickerView.swift
 //
@@ -17,6 +9,8 @@ import SwiftUI
 struct ColorWheelPickerView: View {
 
     @Binding var devColor: DevColor
+
+    // MARK: - Local state
     @State private var hexInput: String = ""
     @State private var hexError: Bool = false
     @State private var hue: Double = 0
@@ -24,16 +18,19 @@ struct ColorWheelPickerView: View {
     @State private var lightness: Double = 0
     @State private var pickerMode: PickerMode = .wheel
 
+    // FIX 1: track hex field focus so sync never clobbers mid-edit text
+    @FocusState private var hexFieldFocused: Bool
+
     enum PickerMode: String, CaseIterable {
-        case wheel = "Wheel"
+        case wheel   = "Wheel"
         case sliders = "Sliders"
-        case hex = "HEX"
+        case hex     = "HEX"
     }
 
     var body: some View {
         VStack(spacing: DSSpacing.md) {
 
-            // Mode toggle
+            // Mode toggle — stays put, never auto-switches
             Picker("Picker Mode", selection: $pickerMode) {
                 ForEach(PickerMode.allCases, id: \.self) {
                     Text($0.rawValue).tag($0)
@@ -41,14 +38,17 @@ struct ColorWheelPickerView: View {
             }
             .pickerStyle(.segmented)
 
-            // Active picker
-            switch pickerMode {
-            case .wheel:   wheelPicker
-            case .sliders: slidersPicker
-            case .hex:     hexPicker
+            // Active picker panel — fixed height so card doesn't jump between modes
+            Group {
+                switch pickerMode {
+                case .wheel:   wheelPicker
+                case .sliders: slidersPicker
+                case .hex:     hexPicker
+                }
             }
+            .frame(height: 80)
 
-            // Color preview bar
+            // Color preview bar — values animate in place (FIX 2)
             colorPreviewBar
         }
         .padding(DSSpacing.cardPadding)
@@ -58,8 +58,13 @@ struct ColorWheelPickerView: View {
             RoundedRectangle(cornerRadius: DSSpacing.Radius.md)
                 .strokeBorder(DSColors.Preview.borderSubtle, lineWidth: 1)
         )
-        .onAppear { syncFromDevColor() }
-        .onChange(of: devColor) { syncFromDevColor() }
+        .onAppear {
+            syncFromDevColor(force: true)
+        }
+        .onChange(of: devColor) {
+            // FIX 1: guard prevents overwriting hexInput while user is typing
+            syncFromDevColor(force: false)
+        }
     }
 
     // MARK: - Wheel Picker
@@ -78,29 +83,30 @@ struct ColorWheelPickerView: View {
             .frame(width: 50, height: 50)
 
             VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                Text("Tap the swatch to open the system color wheel")
+                Text("Tap the swatch to open\nthe system color wheel")
                     .font(DSTypography.bodySmall)
                     .foregroundStyle(DSColors.Preview.textSecondary)
+
+                // FIX 2: hex value rolls in place
                 Text(devColor.hex)
                     .font(DSTypography.codeMedium)
                     .foregroundStyle(DSColors.Preview.textPrimary)
+                    .contentTransition(.numericText())
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: devColor.hex)
             }
             Spacer()
         }
-        .frame(height: 60)
     }
 
     // MARK: - Sliders Picker
     private var slidersPicker: some View {
         VStack(spacing: DSSpacing.sm) {
-            colorSlider(label: "H", value: $hue, range: 0...360,
-                        unit: "°", color: .red, onChange: applyHSL)
-
-            colorSlider(label: "S", value: $saturation, range: 0...100,
-                        unit: "%", color: DSColors.Preview.accent, onChange: applyHSL)
-
-            colorSlider(label: "L", value: $lightness, range: 0...100,
-                        unit: "%", color: .white, onChange: applyHSL)
+            colorSlider(label: "H", value: $hue,        range: 0...360, unit: "°",
+                        color: Color(hue: hue / 360, saturation: 1, brightness: 1))
+            colorSlider(label: "S", value: $saturation, range: 0...100, unit: "%",
+                        color: DSColors.Preview.accent)
+            colorSlider(label: "L", value: $lightness,  range: 0...100, unit: "%",
+                        color: .white)
         }
     }
 
@@ -109,8 +115,7 @@ struct ColorWheelPickerView: View {
         value: Binding<Double>,
         range: ClosedRange<Double>,
         unit: String,
-        color: Color,
-        onChange: @escaping () -> Void
+        color: Color
     ) -> some View {
         HStack(spacing: DSSpacing.sm) {
             Text(label)
@@ -120,13 +125,16 @@ struct ColorWheelPickerView: View {
 
             Slider(value: value, in: range, step: 1)
                 .tint(color)
-                .onChange(of: value.wrappedValue) { onChange() }
+                .onChange(of: value.wrappedValue) { applyHSL() }
 
+            // FIX 2: slider label rolls up/down like a counter
             Text("\(Int(value.wrappedValue))\(unit)")
                 .font(DSTypography.codeMedium)
                 .foregroundStyle(DSColors.Preview.textPrimary)
                 .frame(width: 42, alignment: .trailing)
                 .monospacedDigit()
+                .contentTransition(.numericText())
+                .animation(.spring(response: 0.25, dampingFraction: 0.8), value: value.wrappedValue)
         }
     }
 
@@ -134,7 +142,6 @@ struct ColorWheelPickerView: View {
     private var hexPicker: some View {
         VStack(alignment: .leading, spacing: DSSpacing.xs) {
             HStack(spacing: DSSpacing.sm) {
-                // Hash prefix
                 Text("#")
                     .font(DSTypography.codeLarge)
                     .foregroundStyle(DSColors.Preview.textTertiary)
@@ -143,11 +150,15 @@ struct ColorWheelPickerView: View {
                     .font(DSTypography.codeLarge)
                     .foregroundStyle(DSColors.Preview.textPrimary)
                     .textInputAutocapitalization(.characters)
-                    .disableAutocorrection(true)
+                    .autocorrectionDisabled()
+                    .focused($hexFieldFocused)          // FIX 1: bind focus state
                     .onChange(of: hexInput) { applyHex() }
-                    .onSubmit { applyHex() }
+                    .onSubmit {
+                        applyHex()
+                        hexFieldFocused = false
+                    }
 
-                // Live swatch
+                // Live swatch — updates from devColor, independently of field text
                 RoundedRectangle(cornerRadius: DSSpacing.Radius.xs)
                     .fill(devColor.color)
                     .frame(width: 36, height: 36)
@@ -155,43 +166,64 @@ struct ColorWheelPickerView: View {
                         RoundedRectangle(cornerRadius: DSSpacing.Radius.xs)
                             .strokeBorder(DSColors.Preview.borderDefault, lineWidth: 1)
                     )
+                    .animation(.easeInOut(duration: 0.2), value: devColor.hex)
             }
             .padding(DSSpacing.sm)
             .background(DSColors.Preview.backgroundTertiary,
                         in: RoundedRectangle(cornerRadius: DSSpacing.Radius.sm))
             .overlay(
                 RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
-                    .strokeBorder(hexError ? DSColors.Preview.error : Color.clear, lineWidth: 1.5)
+                    .strokeBorder(
+                        hexError        ? DSColors.Preview.error :
+                        hexFieldFocused ? DSColors.Preview.accent.opacity(0.6) :
+                                          Color.clear,
+                        lineWidth: 1.5
+                    )
+                    .animation(.easeInOut(duration: 0.15), value: hexFieldFocused)
+                    .animation(.easeInOut(duration: 0.15), value: hexError)
             )
 
             if hexError {
-                Text("Invalid hex — use format RRGGBB")
+                Text("Invalid hex — use RRGGBB or shorthand RGB")
                     .font(DSTypography.labelSmall)
                     .foregroundStyle(DSColors.Preview.error)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .frame(height: 80)
+        .animation(.easeInOut(duration: 0.15), value: hexError)
     }
 
     // MARK: - Color Preview Bar
     private var colorPreviewBar: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: DSSpacing.sm) {
+
+            // Swatch — smooth fill transition
             RoundedRectangle(cornerRadius: DSSpacing.Radius.xs)
                 .fill(devColor.color)
                 .frame(height: 28)
+                .animation(.easeInOut(duration: 0.2), value: devColor.hex)
 
-            Spacer().frame(width: DSSpacing.sm)
+            // RGB chips — FIX 2: each value rolls independently
+            animatedChip(label: "R", value: devColor.rgb.r)
+            animatedChip(label: "G", value: devColor.rgb.g)
+            animatedChip(label: "B", value: devColor.rgb.b)
 
-            // RGB chips
-            HStack(spacing: DSSpacing.xs) {
-                colorChip(label: "R", value: devColor.rgb.r)
-                colorChip(label: "G", value: devColor.rgb.g)
-                colorChip(label: "B", value: devColor.rgb.b)
-            }
+            Divider()
+                .frame(height: 16)
+                .background(DSColors.Preview.borderSubtle)
+
+            // HEX chip
+            Text(devColor.hex)
+                .font(DSTypography.codeSmall)
+                .foregroundStyle(DSColors.Preview.textSecondary)
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .animation(.spring(response: 0.3, dampingFraction: 0.8), value: devColor.hex)
         }
     }
 
-    private func colorChip(label: String, value: Int) -> some View {
+    /// A labeled chip whose numeric value animates up/down on change
+    private func animatedChip(label: String, value: Int) -> some View {
         HStack(spacing: 3) {
             Text(label)
                 .font(DSTypography.labelSmall)
@@ -200,6 +232,9 @@ struct ColorWheelPickerView: View {
                 .font(DSTypography.codeSmall)
                 .foregroundStyle(DSColors.Preview.textSecondary)
                 .monospacedDigit()
+                .contentTransition(.numericText())                          // FIX 2
+                .animation(.spring(response: 0.3, dampingFraction: 0.8),
+                           value: value)
         }
         .padding(.horizontal, DSSpacing.xs)
         .padding(.vertical, 4)
@@ -209,40 +244,53 @@ struct ColorWheelPickerView: View {
 
     // MARK: - Sync Helpers
 
-    private func syncFromDevColor() {
+    /// Pull HSL + hex from devColor into local state.
+    /// - force: true  → always update hexInput (used on first appear)
+    /// - force: false → skip hexInput update if the user is currently typing in it (FIX 1)
+    private func syncFromDevColor(force: Bool) {
         let (h, s, l) = devColor.hsl
-        hue        = h
-        saturation = s
-        lightness  = l
-        hexInput   = String(devColor.hex.dropFirst()) // strip #
-        hexError   = false
-    }
-
-    private func applyHSL() {
-        devColor = DevColor(hue: hue, saturation: saturation / 100, lightness: lightness / 100)
-        hexInput = String(devColor.hex.dropFirst())
-    }
-
-    private func applyHex() {
-        let cleaned = hexInput.trimmingCharacters(in: .whitespaces)
-        if let dc = DevColor(hex: cleaned) {
-            devColor   = dc
-            hexError   = false
-            let (h, s, l) = dc.hsl
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
             hue        = h
             saturation = s
             lightness  = l
+        }
+        if force || !hexFieldFocused {
+            hexInput = String(devColor.hex.dropFirst()) // strip leading #
+            hexError = false
+        }
+    }
+
+    /// Sliders changed → push HSL into devColor, optionally sync hex field
+    private func applyHSL() {
+        let newColor = DevColor(hue: hue, saturation: saturation / 100, lightness: lightness / 100)
+        devColor = newColor
+        if !hexFieldFocused {
+            hexInput = String(newColor.hex.dropFirst())
+        }
+    }
+
+    /// HEX field changed → parse and push to devColor only when valid.
+    /// Never resets hexInput — user stays in full control of the field. (FIX 1)
+    private func applyHex() {
+        let cleaned = hexInput.trimmingCharacters(in: .whitespaces)
+        guard !cleaned.isEmpty else { hexError = false; return }
+
+        if let dc = DevColor(hex: cleaned) {
+            devColor = dc          // triggers onChange(of: devColor) → syncFromDevColor(force: false)
+            hexError = false       // which skips hexInput because hexFieldFocused == true
         } else {
             hexError = cleaned.count >= 6
         }
     }
 }
 
-// MARK: - Preview
+//// MARK: - Preview
 //#Preview {
 //    ZStack {
 //        DSColors.Preview.backgroundPrimary.ignoresSafeArea()
-//        ColorWheelPickerView(devColor: .constant(DevColor(hue: 240, saturation: 0.65, lightness: 0.55)))
-//            .padding()
+//        ColorWheelPickerView(
+//            devColor: .constant(DevColor(hue: 240, saturation: 0.65, lightness: 0.55))
+//        )
+//        .padding()
 //    }
 //}

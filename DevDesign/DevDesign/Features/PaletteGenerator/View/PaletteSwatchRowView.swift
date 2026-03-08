@@ -42,32 +42,39 @@ struct PaletteSwatchRowView: View {
     private var mainRow: some View {
         HStack(spacing: DSSpacing.md) {
 
-            // Large color swatch
+            // Large color swatch — fill animates smoothly
             RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
                 .fill(entry.color.color)
+                .animation(.easeInOut(duration: 0.2), value: entry.color.hex)
                 .frame(width: 56, height: 56)
                 .overlay(
                     RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
                         .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
                 )
 
-            // Color info
+            // Color info — values animate in-place (no row jump)
             VStack(alignment: .leading, spacing: 3) {
                 Text(entry.color.hex)
                     .font(DSTypography.codeMedium)
                     .foregroundStyle(DSColors.Preview.textPrimary)
+                    .contentTransition(.numericText())
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: entry.color.hex)
 
-                HStack(spacing: DSSpacing.xs) {
-                    let (r, g, b) = entry.color.rgb
-                    Text("R \(r)  G \(g)  B \(b)")
-                        .font(DSTypography.codeSmall)
-                        .foregroundStyle(DSColors.Preview.textTertiary)
-                }
+                let (r, g, b) = entry.color.rgb
+                Text("R \(r)  G \(g)  B \(b)")
+                    .font(DSTypography.codeSmall)
+                    .foregroundStyle(DSColors.Preview.textTertiary)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: r + g + b)
 
                 let (h, s, l) = entry.color.hsl
                 Text("H \(Int(h))°  S \(Int(s))%  L \(Int(l))%")
                     .font(DSTypography.codeSmall)
                     .foregroundStyle(DSColors.Preview.textTertiary)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: Int(h) + Int(s) + Int(l))
             }
 
             Spacer()

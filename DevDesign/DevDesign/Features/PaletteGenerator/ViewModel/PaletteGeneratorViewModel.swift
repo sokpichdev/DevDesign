@@ -35,37 +35,46 @@ final class PaletteGeneratorViewModel {
 
     // MARK: - Actions
 
-    /// Full regenerate — respects locked colors
+    /// Called by sliders / HEX field — mutates colors IN PLACE so entry IDs
+    /// stay the same and the swatch list does NOT animate/re-order.
+    func updateBaseColor(_ color: DevColor) {
+        baseColor = color
+        updateInPlace()
+    }
+
+    /// Called by the Randomise button — replaces entries with NEW UUIDs so
+    /// the swatch list animates (intentional — randomise feels dramatic).
+    func randomise() {
+        let hue        = Double.random(in: 0...360)
+        let saturation = Double.random(in: 0.4...0.85)
+        let lightness  = Double.random(in: 0.35...0.65)
+        baseColor = DevColor(hue: hue, saturation: saturation, lightness: lightness)
+        regenerate()
+    }
+
+    /// Called by the Regenerate (↺) toolbar button — replaces unlocked entries,
+    /// preserving locked ones. Uses new UUIDs → swatch list animates.
     func regenerate() {
         let newPalette = HarmonyEngine.generate(from: baseColor, type: selectedHarmony)
 
         if generatedColors.isEmpty {
-            // First load — build fresh entries
             generatedColors = newPalette.map { PaletteEntry(color: $0) }
         } else {
-            // Preserve locked entries, replace unlocked ones
             var newEntries = newPalette.map { PaletteEntry(color: $0) }
-
-            // Pad or trim to match existing count if needed
             while newEntries.count < generatedColors.count {
                 newEntries.append(PaletteEntry(color: baseColor))
             }
-
             for (i, entry) in generatedColors.enumerated() where entry.isLocked {
-                if i < newEntries.count {
-                    newEntries[i] = entry
-                }
+                if i < newEntries.count { newEntries[i] = entry }
             }
             generatedColors = newEntries
         }
     }
 
-    /// Randomise the base color, then regenerate
-    func randomise() {
-        let hue        = Double.random(in: 0...360)
-        let saturation = Double.random(in: 0.4...0.85)  // avoid muddy or washed out
-        let lightness  = Double.random(in: 0.35...0.65) // avoid too dark / too light
-        baseColor = DevColor(hue: hue, saturation: saturation, lightness: lightness)
+    /// Called when harmony pill changes — resets everything and animates the list.
+    func selectHarmony(_ type: HarmonyType) {
+        selectedHarmony = type
+        generatedColors = []
         regenerate()
     }
 
@@ -75,17 +84,32 @@ final class PaletteGeneratorViewModel {
         generatedColors[index].isLocked.toggle()
     }
 
-    /// Update base color and regenerate
-    func updateBaseColor(_ color: DevColor) {
-        baseColor = color
-        regenerate()
-    }
+    // MARK: - Private
 
-    /// Switch harmony type and regenerate
-    func selectHarmony(_ type: HarmonyType) {
-        selectedHarmony = type
-        generatedColors = []   // reset locks when harmony changes
-        regenerate()
+    /// Mutates the `.color` on each existing entry without touching their IDs.
+    /// Locked entries keep their color. Result: zero list animation.
+    private func updateInPlace() {
+        let newPalette = HarmonyEngine.generate(from: baseColor, type: selectedHarmony)
+
+        if generatedColors.isEmpty {
+            // First boot — no entries yet, must create them
+            generatedColors = newPalette.map { PaletteEntry(color: $0) }
+            return
+        }
+
+        for (i, newColor) in newPalette.enumerated() {
+            guard i < generatedColors.count else { break }
+            guard !generatedColors[i].isLocked else { continue }  // skip locked
+            generatedColors[i].color = newColor                   // mutate in place ✓
+        }
+
+        // Handle harmony type change that produces more/fewer colors than current entries
+        if newPalette.count > generatedColors.count {
+            let extra = newPalette[generatedColors.count...]
+            generatedColors.append(contentsOf: extra.map { PaletteEntry(color: $0) })
+        } else if newPalette.count < generatedColors.count {
+            generatedColors = Array(generatedColors.prefix(newPalette.count))
+        }
     }
 
     /// Copy a single color to clipboard
