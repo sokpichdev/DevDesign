@@ -263,7 +263,7 @@ struct FeatureCard: Identifiable {
             icon: "eyedropper.halffull",
             accentColor: Color(hex: "#FF6B6B"),
             phase: 1,
-            destination: AnyView(PlaceholderView(title: "Color Picker"))
+            destination: AnyView(ColorPickerView())
         ),
         FeatureCard(
             title: "Contrast Checker",
