@@ -42,8 +42,13 @@ struct DashboardView: View {
 
                         featuresGrid(cards: features.filter { $0.phase == 1 })
 
+                        sectionHeader(title: "Typography & Spacing", subtitle: "Phase 2")
+                            .padding(.top, DSSpacing.lg)
+                        
+                        featuresGrid(cards: features.filter { $0.phase == 2 })
+                        
                         // ── Coming Soon ─────────────────────────────────
-                        sectionHeader(title: "Coming Soon", subtitle: "Phases 2–5")
+                        sectionHeader(title: "Coming Soon", subtitle: "Phases 3–5")
                             .padding(.top, DSSpacing.xl)
 
                         comingSoonGrid
@@ -280,6 +285,14 @@ struct FeatureCard: Identifiable {
             accentColor: Color(hex: "#FF9F0A"),
             phase: 1,
             destination: AnyView(SavedPalettesView())
+        ),
+        FeatureCard(
+            title: "Type Scale",
+            subtitle: "Modular scale generator",
+            icon: "textformat.size",
+            accentColor: Color(hex: "#30D158"),
+            phase: 2,
+            destination: AnyView(TypeScaleView())
         )
     ]
 }
