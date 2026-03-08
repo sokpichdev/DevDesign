@@ -46,8 +46,14 @@ struct DashboardView: View {
 
                         featuresGrid(cards: features.filter { $0.phase == 2 })
 
-                        // ── Coming Soon — Phases 3–5 ─────────────────────────
-                        sectionHeader(title: "Coming Soon", subtitle: "Phases 3–5")
+                        // ── Phase 3 — Component & Layout ───────────────────
+                        sectionHeader(title: "Component & Layout", subtitle: "Phase 3")
+                            .padding(.top, DSSpacing.xl)
+
+                        featuresGrid(cards: features.filter { $0.phase == 3 })
+
+                        // ── Coming Soon — Phases 4–5 ─────────────────────
+                        sectionHeader(title: "Coming Soon", subtitle: "Phases 4–5")
                             .padding(.top, DSSpacing.xl)
 
                         comingSoonGrid
@@ -318,6 +324,40 @@ struct FeatureCard: Identifiable {
             phase: 2,
             destination: AnyView(SFSymbolsView())
         ),
+
+        // ── Phase 3 — Component & Layout ───────────────────
+        FeatureCard(
+            title: "Shadow Playground",
+            subtitle: "Stacked layers + inner shadow",
+            icon: "shadow",
+            accentColor: Color(hex: "#5E5CE6"),
+            phase: 3,
+            destination: AnyView(ShadowPlaygroundView())
+        ),
+        FeatureCard(
+            title: "Gradient Builder",
+            subtitle: "Linear, radial & angular",
+            icon: "circles.hexagonpath.fill",
+            accentColor: Color(hex: "#FF6B6B"),
+            phase: 3,
+            destination: AnyView(PlaceholderView(title: "Gradient Builder"))
+        ),
+        FeatureCard(
+            title: "Component Snippets",
+            subtitle: "80+ SwiftUI components",
+            icon: "rectangle.3.group.fill",
+            accentColor: Color(hex: "#32D74B"),
+            phase: 3,
+            destination: AnyView(PlaceholderView(title: "Component Snippets"))
+        ),
+        FeatureCard(
+            title: "Layout Inspector",
+            subtitle: "Patterns, grids & scaffolds",
+            icon: "rectangle.split.3x1",
+            accentColor: Color(hex: "#FF9F0A"),
+            phase: 3,
+            destination: AnyView(PlaceholderView(title: "Layout Inspector"))
+        ),
     ]
 }
 
@@ -331,11 +371,8 @@ struct ComingSoonItem: Identifiable {
     let phase: String
 
     static var all: [ComingSoonItem] = [
-        ComingSoonItem(title: "Component Snippets",    icon: "rectangle.3.group.fill",   phase: "Phase 3"),
-        ComingSoonItem(title: "Shadow Playground",     icon: "shadow",                   phase: "Phase 3"),
-        ComingSoonItem(title: "Gradient Builder",      icon: "circles.hexagonpath.fill", phase: "Phase 3"),
-        ComingSoonItem(title: "App Icon Generator",    icon: "app.fill",                 phase: "Phase 4"),
-        ComingSoonItem(title: "AI Palette from Prompt",icon: "sparkles",                 phase: "Phase 5"),
+        ComingSoonItem(title: "App Icon Generator",     icon: "app.fill", phase: "Phase 4"),
+        ComingSoonItem(title: "AI Palette from Prompt", icon: "sparkles", phase: "Phase 5"),
     ]
 }
 
