@@ -56,9 +56,6 @@ struct GradientBuilderView: View {
     // MARK: - Preview Card
     private var previewCard: some View {
         ZStack {
-            // No .animation(value: viewModel.config) here —
-            // gradient AnimatableData crashes when stop colors/positions
-            // update faster than SwiftUI can interpolate between frames.
             gradientBackground
         }
         .frame(height: 220)
@@ -68,13 +65,17 @@ struct GradientBuilderView: View {
                 .strokeBorder(DSColors.Preview.borderSubtle, lineWidth: 1)
         )
         .overlay(alignment: .bottomLeading) { cssPreviewLabel }
+        // CRITICAL FIX: Disable all animations on the gradient to prevent AnimatableData crash
+        .transaction { transaction in
+            transaction.animation = nil
+        }
     }
 
     @ViewBuilder
     private var gradientBackground: some View {
         switch viewModel.previewShape {
         case .rectangle:
-            Rectangle().fill(currentGradientStyle)
+            StaticGradientFill(style: currentGradientStyle)
         case .circle:
             ZStack {
                 DSColors.Preview.backgroundSecondary
@@ -87,7 +88,7 @@ struct GradientBuilderView: View {
             }
         case .card:
             ZStack(alignment: .bottom) {
-                Rectangle().fill(currentGradientStyle)
+                StaticGradientFill(style: currentGradientStyle)
                 // Card chrome overlay
                 VStack(alignment: .leading, spacing: 6) {
                     RoundedRectangle(cornerRadius: 4)
@@ -490,6 +491,19 @@ struct GradientBuilderView: View {
     }
 }
 
+struct StaticGradientFill: View {
+
+    let style: AnyShapeStyle
+
+    var body: some View {
+        Rectangle()
+            .fill(style)
+            .transaction { t in
+                t.animation = nil
+            }
+            .animation(nil, value: UUID())
+    }
+}
 // MARK: - Preview
 #Preview {
     NavigationStack {

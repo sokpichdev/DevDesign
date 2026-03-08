@@ -111,7 +111,6 @@ struct GradientStopEditor: View {
         Group {
             switch viewModel.config.type {
             case .linear, .radial, .angular:
-                // Always show linear in the strip for clarity
                 Rectangle()
                     .fill(
                         LinearGradient(
@@ -121,6 +120,10 @@ struct GradientStopEditor: View {
                         )
                     )
             }
+        }
+        // CRITICAL FIX: Disable animations to prevent crash during drag
+        .transaction { transaction in
+            transaction.animation = nil
         }
     }
 
@@ -157,10 +160,13 @@ struct GradientStopEditor: View {
                 .onChanged { value in
                     draggingID = stop.id
                     viewModel.selectedStopID = stop.id
+
                     let newPos = min(max(value.location.x / trackWidth, 0), 1)
-                    viewModel.updateStopPosition(newPos, id: stop.id)
-                }
-                .onEnded { _ in
+
+                    withTransaction(Transaction(animation: nil)) {
+                        viewModel.updateStopPosition(newPos, id: stop.id)
+                    }
+                } .onEnded { _ in
                     withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
                         draggingID = nil
                     }
@@ -184,7 +190,13 @@ struct GradientStopEditor: View {
                     .foregroundStyle(DSColors.Preview.textTertiary)
                 let colorBinding = Binding<Color>(
                     get: { stop.color },
-                    set: { newColor in viewModel.updateStopColor(newColor, id: id) }
+                    set: { newColor in
+                        var transaction = Transaction()
+                        transaction.animation = nil
+                        withTransaction(transaction) {
+                            viewModel.updateStopColor(newColor, id: id)
+                        }
+                    }
                 )
                 ColorPicker("Pick color", selection: colorBinding, supportsOpacity: false)
                     .labelsHidden()
@@ -209,8 +221,8 @@ struct GradientStopEditor: View {
                         .foregroundStyle(DSColors.Preview.textPrimary)
                         .frame(width: 38, alignment: .trailing)
                         .contentTransition(.numericText())
-                        .animation(.spring(response: 0.25, dampingFraction: 0.8),
-                                   value: stop.position)
+//                        .animation(.spring(response: 0.25, dampingFraction: 0.8),
+//                                   value: stop.position)
                 }
             }
 
