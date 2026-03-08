@@ -9,6 +9,9 @@ import SwiftUI
 struct ColorWheelPickerView: View {
 
     @Binding var devColor: DevColor
+    /// Observed from PaletteGeneratorViewModel.forceSyncTrigger.
+    /// When it changes, the field is force-synced and focus is dismissed.
+    var forceSyncTrigger: Int = 0
 
     // MARK: - Local state
     @State private var hexInput: String = ""
@@ -64,6 +67,12 @@ struct ColorWheelPickerView: View {
         .onChange(of: devColor) {
             // FIX 1: guard prevents overwriting hexInput while user is typing
             syncFromDevColor(force: false)
+        }
+        .onChange(of: forceSyncTrigger) {
+            // External action (randomise / harmony change) — dismiss focus
+            // and force-overwrite the hex field with the new color.
+            hexFieldFocused = false
+            syncFromDevColor(force: true)
         }
     }
 
@@ -284,13 +293,13 @@ struct ColorWheelPickerView: View {
     }
 }
 
-//// MARK: - Preview
-//#Preview {
-//    ZStack {
-//        DSColors.Preview.backgroundPrimary.ignoresSafeArea()
-//        ColorWheelPickerView(
-//            devColor: .constant(DevColor(hue: 240, saturation: 0.65, lightness: 0.55))
-//        )
-//        .padding()
-//    }
-//}
+// MARK: - Preview
+#Preview {
+    ZStack {
+        DSColors.Preview.backgroundPrimary.ignoresSafeArea()
+        ColorWheelPickerView(
+            devColor: .constant(DevColor(hue: 240, saturation: 0.65, lightness: 0.55))
+        )
+        .padding()
+    }
+}

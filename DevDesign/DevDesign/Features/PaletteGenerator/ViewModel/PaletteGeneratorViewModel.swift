@@ -19,6 +19,10 @@ final class PaletteGeneratorViewModel {
     var paletteName: String = ""
     var saveSuccess: Bool = false
 
+    /// Incremented whenever randomise() or selectHarmony() fires so that
+    /// ColorWheelPickerView can force-sync its fields and resign focus.
+    private(set) var forceSyncTrigger: Int = 0
+
     // MARK: - Init
     init() {
         regenerate()
@@ -49,6 +53,7 @@ final class PaletteGeneratorViewModel {
         let saturation = Double.random(in: 0.4...0.85)
         let lightness  = Double.random(in: 0.35...0.65)
         baseColor = DevColor(hue: hue, saturation: saturation, lightness: lightness)
+        forceSyncTrigger &+= 1   // signals picker to dismiss focus & force-sync
         regenerate()
     }
 
@@ -75,6 +80,7 @@ final class PaletteGeneratorViewModel {
     func selectHarmony(_ type: HarmonyType) {
         selectedHarmony = type
         generatedColors = []
+        forceSyncTrigger &+= 1   // signals picker to dismiss focus & force-sync
         regenerate()
     }
 

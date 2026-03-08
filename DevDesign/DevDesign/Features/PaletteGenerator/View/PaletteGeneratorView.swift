@@ -4,11 +4,6 @@
 //
 //  Created by Sok Pich on 08/03/2026.
 //
-
-
-// PaletteGeneratorView.swift
-// DevDesign — Features/PaletteGenerator/PaletteGeneratorView.swift
-//
 // Main screen for the Palette Generator feature.
 // Composes: color picker → harmony selector → swatch list → toolbar
 
@@ -30,7 +25,8 @@ struct PaletteGeneratorView: View {
                         devColor: Binding(
                             get: { viewModel.baseColor },
                             set: { viewModel.updateBaseColor($0) }
-                        )
+                        ),
+                        forceSyncTrigger: viewModel.forceSyncTrigger
                     )
 
                     // 2. Harmony type strip
@@ -275,8 +271,8 @@ struct PaletteGeneratorView: View {
 }
 
 // MARK: - Preview
-//#Preview {
-//    NavigationStack {
-//        PaletteGeneratorView()
-//    }
-//}
+#Preview {
+    NavigationStack {
+        PaletteGeneratorView()
+    }
+}
