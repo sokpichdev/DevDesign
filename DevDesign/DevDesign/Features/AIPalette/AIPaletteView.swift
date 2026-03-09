@@ -544,6 +544,7 @@ struct AIPaletteView: View {
                     .font(DSTypography.labelSmall)
                     .foregroundStyle(DSColors.Preview.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
+                let _ = print("Generation failed \(message)")
             }
             Spacer()
             Button {

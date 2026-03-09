@@ -141,35 +141,39 @@ enum SuggestionCategory: String, CaseIterable {
 enum PromptSuggestionLibrary {
     static let all: [PromptSuggestion] = [
         // Nature
-        PromptSuggestion(text: "Sunset over the ocean",         icon: "sun.horizon",        category: .nature),
-        PromptSuggestion(text: "Deep forest at dawn",           icon: "tree",               category: .nature),
-        PromptSuggestion(text: "Arctic ice and snow",           icon: "snowflake",          category: .nature),
-        PromptSuggestion(text: "Autumn leaves falling",         icon: "leaf",               category: .nature),
-        PromptSuggestion(text: "Desert canyon midday",          icon: "sun.max",            category: .nature),
-        PromptSuggestion(text: "Tropical reef underwater",      icon: "fish",               category: .nature),
+        PromptSuggestion(text: "Golden hour over a calm ocean", icon: "sun.horizon", category: .nature),
+        PromptSuggestion(text: "Lush botanical greens and damp earth", icon: "leaf.arrow.triangle.circlepath", category: .nature),
+        PromptSuggestion(text: "Frosty morning glacial blues", icon: "snowflake", category: .nature),
+        PromptSuggestion(text: "Warm terracotta and desert clay", icon: "sun.max", category: .nature),
+        PromptSuggestion(text: "Deep sea bioluminescent corals", icon: "fish", category: .nature),
+        
         // Urban
-        PromptSuggestion(text: "Tokyo neon at night",           icon: "building.2",         category: .urban),
-        PromptSuggestion(text: "New York concrete jungle",      icon: "building.columns",   category: .urban),
-        PromptSuggestion(text: "Paris café in morning light",   icon: "cup.and.saucer",     category: .urban),
-        PromptSuggestion(text: "Cyberpunk megacity",            icon: "bolt",               category: .urban),
-        PromptSuggestion(text: "Brutalist architecture",        icon: "rectangle.3.group",  category: .urban),
+        PromptSuggestion(text: "Neon violet and midnight asphalt", icon: "building.2", category: .urban),
+        PromptSuggestion(text: "Industrial concrete and rusted steel", icon: "hammer", category: .urban),
+        PromptSuggestion(text: "Vintage Parisian café tones", icon: "cup.and.saucer", category: .urban),
+        PromptSuggestion(text: "Modern glass and steel skyscraper", icon: "building.columns", category: .urban),
+        PromptSuggestion(text: "London fog and cobblestone grey", icon: "cloud.fog", category: .urban),
+        
         // Mood
-        PromptSuggestion(text: "Calm meditation space",         icon: "brain.head.profile", category: .mood),
-        PromptSuggestion(text: "Playful children's toy room",   icon: "puzzlepiece",        category: .mood),
-        PromptSuggestion(text: "Luxury boutique hotel lobby",   icon: "crown",              category: .mood),
-        PromptSuggestion(text: "Dark romance and mystery",      icon: "moon.stars",         category: .mood),
-        PromptSuggestion(text: "Energetic fitness brand",       icon: "bolt.circle",        category: .mood),
+        PromptSuggestion(text: "Serene zen spa and soft linen", icon: "brain.head.profile", category: .mood),
+        PromptSuggestion(text: "High-energy neon fitness vibes", icon: "bolt.heart", category: .mood),
+        PromptSuggestion(text: "Elegant gold and royal velvet", icon: "crown", category: .mood),
+        PromptSuggestion(text: "Moody noir and crimson mystery", icon: "moon.stars", category: .mood),
+        PromptSuggestion(text: "Bright pastel candy shop joy", icon: "mouth", category: .mood),
+        
         // Design
-        PromptSuggestion(text: "Fintech dashboard UI",          icon: "chart.bar",          category: .design),
-        PromptSuggestion(text: "Minimal Scandinavian app",      icon: "square.split.2x1",   category: .design),
-        PromptSuggestion(text: "Healthcare patient app",        icon: "cross",              category: .design),
-        PromptSuggestion(text: "Gaming HUD interface",          icon: "gamecontroller",     category: .design),
-        PromptSuggestion(text: "Editorial magazine layout",     icon: "newspaper",          category: .design),
+        PromptSuggestion(text: "Clean fintech blue and slate", icon: "chart.bar", category: .design),
+        PromptSuggestion(text: "Minimalist Scandi wood and white", icon: "square.split.2x1", category: .design),
+        PromptSuggestion(text: "High-contrast dark mode gaming UI", icon: "gamecontroller", category: .design),
+        PromptSuggestion(text: "Soft medical teal and sterile white", icon: "cross", category: .design),
+        PromptSuggestion(text: "Classic editorial parchment and ink", icon: "newspaper", category: .design),
+        
         // Abstract
-        PromptSuggestion(text: "Vaporwave dreamscape",          icon: "waveform",           category: .abstract),
-        PromptSuggestion(text: "Cosmic nebula and starlight",   icon: "sparkles",           category: .abstract),
-        PromptSuggestion(text: "Melting wax and pigment",       icon: "paintbrush",         category: .abstract),
-        PromptSuggestion(text: "Gradient energy flow",          icon: "wind",               category: .abstract),
+        PromptSuggestion(text: "80s retro vaporwave aesthetic", icon: "waveform", category: .abstract),
+        PromptSuggestion(text: "Deep space nebula and stardust", icon: "sparkles", category: .abstract),
+        PromptSuggestion(text: "Iridescent oil slick on water", icon: "drop.fill", category: .abstract),
+        PromptSuggestion(text: "Vivid psychedelic color explosion", icon: "rainbow", category: .abstract),
+        PromptSuggestion(text: "Monochromatic architectural shadows", icon: "rectangle.3.group", category: .abstract)
     ]
 
     static func random(_ count: Int = 8) -> [PromptSuggestion] {

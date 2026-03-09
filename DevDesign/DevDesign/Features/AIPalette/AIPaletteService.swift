@@ -223,7 +223,7 @@ final class AIPaletteService {
             ],
             generationConfig: GeminiGenerationConfig(
                 temperature: 0.7,
-                maxOutputTokens: 2048,
+                maxOutputTokens: 8192,
                 topP: 0.95
             )
         )
@@ -506,15 +506,21 @@ final class AIPaletteService {
     }
 
     private static func stripMarkdownFences(_ text: String) -> String {
-        var lines = text.components(separatedBy: "\n")
-        // Remove leading/trailing ``` lines
+        var s = text
+
+        // Strip <think>...</think> blocks emitted by reasoning/thinking models (e.g. Gemini 2.5 Flash)
+        if let thinkStart = s.range(of: "<think>"),
+           let thinkEnd   = s.range(of: "</think>") {
+            s.removeSubrange(thinkStart.lowerBound...thinkEnd.upperBound)
+        }
+
+        var lines = s.components(separatedBy: "\n")
         if let first = lines.first, first.trimmingCharacters(in: .whitespaces).hasPrefix("```") {
             lines.removeFirst()
         }
         if let last = lines.last, last.trimmingCharacters(in: .whitespaces).hasPrefix("```") {
             lines.removeLast()
         }
-        // Also strip "json" after fence
         let joined = lines.joined(separator: "\n")
         return joined.trimmingCharacters(in: .whitespacesAndNewlines)
     }
