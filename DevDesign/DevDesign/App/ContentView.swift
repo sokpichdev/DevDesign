@@ -52,8 +52,14 @@ struct DashboardView: View {
 
                         featuresGrid(cards: features.filter { $0.phase == 3 })
 
-                        // ── Coming Soon — Phases 4–5 ─────────────────────
-                        sectionHeader(title: "Coming Soon", subtitle: "Phases 4–5")
+                        // ── Phase 4 — Assets & Motion ────────────────────
+                        sectionHeader(title: "Assets & Motion", subtitle: "Phase 4")
+                            .padding(.top, DSSpacing.xl)
+
+                        featuresGrid(cards: features.filter { $0.phase == 4 })
+
+                        // ── Coming Soon — Phase 5 ─────────────────────────
+                        sectionHeader(title: "Coming Soon", subtitle: "Phase 5")
                             .padding(.top, DSSpacing.xl)
 
                         comingSoonGrid
@@ -340,7 +346,7 @@ struct FeatureCard: Identifiable {
             icon: "circles.hexagonpath.fill",
             accentColor: Color(hex: "#FF6B6B"),
             phase: 3,
-            destination: AnyView(PlaceholderView(title: "Gradient Builder"))
+            destination: AnyView(GradientBuilderView())
         ),
         FeatureCard(
             title: "Component Snippets",
@@ -348,7 +354,7 @@ struct FeatureCard: Identifiable {
             icon: "rectangle.3.group.fill",
             accentColor: Color(hex: "#32D74B"),
             phase: 3,
-            destination: AnyView(PlaceholderView(title: "Component Snippets"))
+            destination: AnyView(ComponentSnippetsView())
         ),
         FeatureCard(
             title: "Layout Inspector",
@@ -357,6 +363,40 @@ struct FeatureCard: Identifiable {
             accentColor: Color(hex: "#FF9F0A"),
             phase: 3,
             destination: AnyView(LayoutInspectorView())
+        ),
+
+        // ── Phase 4 — Assets & Motion ─────────────────────
+        FeatureCard(
+            title: "App Icon Generator",
+            subtitle: "Design, preview & export all sizes",
+            icon: "app.fill",
+            accentColor: Color(hex: "#007AFF"),
+            phase: 4,
+            destination: AnyView(AppIconGeneratorView())
+        ),
+        FeatureCard(
+            title: "Animation Playground",
+            subtitle: "Spring, easing & timing curves",
+            icon: "waveform.path",
+            accentColor: Color(hex: "#BF5AF2"),
+            phase: 4,
+            destination: AnyView(PlaceholderView(title: "Animation Playground"))
+        ),
+        FeatureCard(
+            title: "Border & Decoration",
+            subtitle: "Corners, strokes, glows & patterns",
+            icon: "rectangle.dashed",
+            accentColor: Color(hex: "#FF9F0A"),
+            phase: 4,
+            destination: AnyView(PlaceholderView(title: "Border & Decoration"))
+        ),
+        FeatureCard(
+            title: "Design Token Exporter",
+            subtitle: "Swift · JSON · CSS from your system",
+            icon: "doc.text.below.ecg",
+            accentColor: Color(hex: "#30D158"),
+            phase: 4,
+            destination: AnyView(PlaceholderView(title: "Design Token Exporter"))
         ),
     ]
 }
@@ -371,7 +411,6 @@ struct ComingSoonItem: Identifiable {
     let phase: String
 
     static var all: [ComingSoonItem] = [
-        ComingSoonItem(title: "App Icon Generator",     icon: "app.fill", phase: "Phase 4"),
         ComingSoonItem(title: "AI Palette from Prompt", icon: "sparkles", phase: "Phase 5"),
     ]
 }
