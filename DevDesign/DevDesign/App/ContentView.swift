@@ -396,7 +396,7 @@ struct FeatureCard: Identifiable {
             icon: "doc.text.below.ecg",
             accentColor: Color(hex: "#30D158"),
             phase: 4,
-            destination: AnyView(PlaceholderView(title: "Design Token Exporter"))
+            destination: AnyView(DesignTokenExporterView())
         ),
     ]
 }
