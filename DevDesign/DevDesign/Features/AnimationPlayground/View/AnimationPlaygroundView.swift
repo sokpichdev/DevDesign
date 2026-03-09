@@ -19,8 +19,8 @@ struct AnimationPlaygroundView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: DSSpacing.md) {
 
-                    // 1. Live preview card
-                    AnimationPreviewCard(viewModel: viewModel, accentColor: accentColor)
+                    // Spacer to account for sticky header height
+                    Color.clear
 
                     // 2. Timing curve visualiser
                     curveSection
@@ -32,6 +32,15 @@ struct AnimationPlaygroundView: View {
                 }
                 .padding(.horizontal, DSSpacing.screenPadding)
                 .padding(.top, DSSpacing.md)
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                // Sticky preview card
+                VStack(spacing: 0) {
+                    AnimationPreviewCard(viewModel: viewModel, accentColor: accentColor)
+                        .padding(.horizontal, DSSpacing.screenPadding)
+                }
+                .padding(.top, DSSpacing.md)
+                .background(DSColors.Preview.backgroundPrimary)
             }
         }
         .navigationTitle("Animation Playground")
