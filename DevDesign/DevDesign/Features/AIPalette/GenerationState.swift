@@ -189,7 +189,8 @@ struct PromptHistoryEntry: Identifiable, Equatable, Codable {
     var style:     String
     var colorCount: Int
     var paletteName: String
-    var savedAt:   Date   = .now
+    var colors:      [AIColor] = []   // snapshot of generated palette colors
+    var savedAt:     Date  = .now
 }
 
 // MARK: - API Key Status

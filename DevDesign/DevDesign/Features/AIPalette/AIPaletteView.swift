@@ -115,9 +115,10 @@ struct AIPaletteView: View {
             )
             .animation(.spring(response: 0.2, dampingFraction: 0.8), value: vm.promptText.isEmpty)
 
-            // Generate button
+            // Generate / Regenerate button
             HStack(spacing: DSSpacing.sm) {
                 if vm.currentPalette != nil {
+                    // "New" clears back to idle
                     Button { vm.newPrompt() } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "plus")
@@ -136,12 +137,18 @@ struct AIPaletteView: View {
                 Spacer()
 
                 if vm.currentPalette != nil {
+                    // After generation: show only Regenerate
                     Button { vm.regenerate() } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.clockwise")
-                            Text("Regenerate")
+                        HStack(spacing: 6) {
+                            if vm.isGenerating {
+                                ProgressView().scaleEffect(0.8).tint(accent)
+                            } else {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 13, weight: .bold))
+                            }
+                            Text(vm.isGenerating ? "Generating…" : "Regenerate")
+                                .font(DSTypography.headingSmall)
                         }
-                        .font(DSTypography.headingSmall)
                         .foregroundStyle(accent)
                         .padding(.horizontal, DSSpacing.md)
                         .padding(.vertical, DSSpacing.xs)
@@ -149,32 +156,32 @@ struct AIPaletteView: View {
                         .overlay(Capsule().strokeBorder(accent.opacity(0.3), lineWidth: 1))
                     }
                     .buttonStyle(.plain)
-                }
-
-                Button { vm.generate() } label: {
-                    HStack(spacing: 6) {
-                        if vm.isGenerating {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                                .tint(.white)
-                        } else {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 13, weight: .bold))
+                    .disabled(vm.isGenerating)
+                } else {
+                    // Before generation: show only Generate
+                    Button { vm.generate() } label: {
+                        HStack(spacing: 6) {
+                            if vm.isGenerating {
+                                ProgressView().scaleEffect(0.8).tint(.white)
+                            } else {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 13, weight: .bold))
+                            }
+                            Text(vm.isGenerating ? "Generating…" : "Generate")
+                                .font(DSTypography.headingSmall)
                         }
-                        Text(vm.isGenerating ? "Generating…" : "Generate")
-                            .font(DSTypography.headingSmall)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, DSSpacing.md)
+                        .padding(.vertical, DSSpacing.xs)
+                        .background(
+                            vm.canGenerate ? accent : DSColors.Preview.textTertiary,
+                            in: Capsule()
+                        )
                     }
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, DSSpacing.md)
-                    .padding(.vertical, DSSpacing.xs)
-                    .background(
-                        vm.canGenerate ? accent : DSColors.Preview.textTertiary,
-                        in: Capsule()
-                    )
+                    .buttonStyle(.plain)
+                    .disabled(!vm.canGenerate)
+                    .animation(.spring(response: 0.2, dampingFraction: 0.8), value: vm.canGenerate)
                 }
-                .buttonStyle(.plain)
-                .disabled(!vm.canGenerate)
-                .animation(.spring(response: 0.2, dampingFraction: 0.8), value: vm.canGenerate)
             }
         }
         .padding(DSSpacing.cardPadding)
@@ -1022,32 +1029,15 @@ struct PromptHistorySheet: View {
                             .foregroundStyle(DSColors.Preview.textTertiary)
                     }
                 } else {
-                    List {
-                        ForEach(vm.promptHistory) { entry in
-                            Button { vm.applyHistoryEntry(entry) } label: {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(entry.paletteName)
-                                        .font(DSTypography.headingSmall)
-                                        .foregroundStyle(DSColors.Preview.textPrimary)
-                                    Text("\(entry.prompt)")
-                                        .font(DSTypography.bodySmall)
-                                        .foregroundStyle(DSColors.Preview.textSecondary)
-                                        .lineLimit(1)
-                                    HStack(spacing: 8) {
-                                        Text(entry.style)
-                                        Text("·")
-                                        Text("\(entry.colorCount) colors")
-                                    }
-                                    .font(DSTypography.labelSmall)
-                                    .foregroundStyle(DSColors.Preview.textTertiary)
-                                }
-                                .padding(.vertical, 4)
+                    ScrollView(.vertical, showsIndicators: false) {
+                        LazyVStack(spacing: DSSpacing.sm) {
+                            ForEach(vm.promptHistory) { entry in
+                                historyCard(entry: entry)
                             }
-                            .buttonStyle(.plain)
                         }
+                        .padding(.horizontal, DSSpacing.screenPadding)
+                        .padding(.vertical, DSSpacing.sm)
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
                 }
             }
             .navigationTitle("History")
@@ -1067,6 +1057,79 @@ struct PromptHistorySheet: View {
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(DSColors.Preview.backgroundSecondary)
+    }
+
+    private func historyCard(entry: PromptHistoryEntry) -> some View {
+        Button { vm.applyHistoryEntry(entry) } label: {
+            VStack(alignment: .leading, spacing: DSSpacing.sm) {
+
+                // Color strip
+                if !entry.colors.isEmpty {
+                    HStack(spacing: 0) {
+                        ForEach(entry.colors) { color in
+                            color.color
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: DSSpacing.Radius.sm))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
+                            .strokeBorder(DSColors.Preview.borderSubtle, lineWidth: 1)
+                    )
+                }
+
+                // Palette name + prompt
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(entry.paletteName)
+                        .font(DSTypography.headingSmall)
+                        .foregroundStyle(DSColors.Preview.textPrimary)
+                        .lineLimit(1)
+                    Text(entry.prompt)
+                        .font(DSTypography.bodySmall)
+                        .foregroundStyle(DSColors.Preview.textSecondary)
+                        .lineLimit(1)
+                }
+
+                // Meta row: style · count · hex dots
+                HStack(spacing: 6) {
+                    Text(entry.style)
+                        .font(DSTypography.labelSmall)
+                        .foregroundStyle(accentColor.opacity(0.8))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(accentColor.opacity(0.1), in: Capsule())
+
+                    Text("·")
+                        .foregroundStyle(DSColors.Preview.textTertiary)
+                        .font(DSTypography.labelSmall)
+
+                    Text("\(entry.colorCount) colors")
+                        .font(DSTypography.labelSmall)
+                        .foregroundStyle(DSColors.Preview.textTertiary)
+
+                    Spacer()
+
+                    // Small hex dots
+                    HStack(spacing: 4) {
+                        ForEach(entry.colors.prefix(6)) { color in
+                            Circle()
+                                .fill(color.color)
+                                .frame(width: 10, height: 10)
+                                .overlay(Circle().strokeBorder(.white.opacity(0.15), lineWidth: 0.5))
+                        }
+                    }
+                }
+            }
+            .padding(DSSpacing.sm)
+            .background(DSColors.Preview.surfaceDefault,
+                        in: RoundedRectangle(cornerRadius: DSSpacing.Radius.md))
+            .overlay(
+                RoundedRectangle(cornerRadius: DSSpacing.Radius.md)
+                    .strokeBorder(DSColors.Preview.borderSubtle, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -198,13 +198,14 @@ final class AIPaletteViewModel {
                     prompt: prompt,
                     style: selectedStyle.rawValue,
                     colorCount: colorCount.rawValue,
-                    paletteName: palette.name
+                    paletteName: palette.name,
+                    colors: palette.colors
                 )
                 PromptHistoryStore.append(entry)
                 promptHistory = PromptHistoryStore.load()
 
             } catch let err as AIPaletteError {
-                withAnimation { generationState = .error(err.localizedDescription ?? "Unknown error") }
+                withAnimation { generationState = .error(err.localizedDescription) }
             } catch {
                 withAnimation { generationState = .error(error.localizedDescription) }
             }
