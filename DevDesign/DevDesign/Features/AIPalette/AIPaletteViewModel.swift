@@ -310,6 +310,33 @@ final class AIPaletteViewModel {
         showHistorySheet = false
     }
 
+    func saveHistoryPalette(entry: PromptHistoryEntry, context: ModelContext) {
+        let savedColors = entry.colors.map { c in
+            SavedColor(
+                id: c.id,
+                hex: c.hex,
+                red: c.red, green: c.green, blue: c.blue,
+                alpha: 1.0,
+                label: c.role
+            )
+        }
+        let saved = SavedPalette(
+            name: entry.paletteName,
+            colors: savedColors,
+            harmonyType: "AI — \(entry.style)",
+            createdAt: entry.savedAt
+        )
+        context.insert(saved)
+        try? context.save()
+
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            showSaveConfirmation = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            withAnimation { self?.showSaveConfirmation = false }
+        }
+    }
+
     func clearHistory() {
         PromptHistoryStore.clear()
         promptHistory = []
