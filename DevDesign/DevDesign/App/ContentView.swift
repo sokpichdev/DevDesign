@@ -58,11 +58,11 @@ struct DashboardView: View {
 
                         featuresGrid(cards: features.filter { $0.phase == 4 })
 
-                        // ── Coming Soon — Phase 5 ─────────────────────────
-                        sectionHeader(title: "Coming Soon", subtitle: "Phase 5")
+                        // ── Phase 5 — AI ─────────────────────────────────
+                        sectionHeader(title: "AI Features", subtitle: "Phase 5")
                             .padding(.top, DSSpacing.xl)
 
-                        comingSoonGrid
+                        featuresGrid(cards: features.filter { $0.phase == 5 })
 
                         Spacer(minLength: DSSpacing.xxxl)
                     }
@@ -398,11 +398,21 @@ struct FeatureCard: Identifiable {
             phase: 4,
             destination: AnyView(DesignTokenExporterView())
         ),
+
+        // ── Phase 5 — AI ──────────────────────────────────────────
+        FeatureCard(
+            title: "AI Palette",
+            subtitle: "Generate from any prompt",
+            icon: "sparkles",
+            accentColor: Color(hex: "#BF5AF2"),
+            phase: 5,
+            destination: AnyView(AIPaletteView())
+        ),
     ]
 }
 
 // MARK: - ComingSoonItem Data
-// Phase 2 fully promoted to FeatureCards — only Phases 3–5 remain here.
+// All phases are now fully launched — keeping struct for forward compatibility.
 
 struct ComingSoonItem: Identifiable {
     let id = UUID()
@@ -410,9 +420,7 @@ struct ComingSoonItem: Identifiable {
     let icon: String
     let phase: String
 
-    static var all: [ComingSoonItem] = [
-        ComingSoonItem(title: "AI Palette from Prompt", icon: "sparkles", phase: "Phase 5"),
-    ]
+    static var all: [ComingSoonItem] = []
 }
 
 // MARK: - Placeholder
