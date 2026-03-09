@@ -340,7 +340,7 @@ struct FeatureCard: Identifiable {
             icon: "circles.hexagonpath.fill",
             accentColor: Color(hex: "#FF6B6B"),
             phase: 3,
-            destination: AnyView(GradientBuilderView())
+            destination: AnyView(PlaceholderView(title: "Gradient Builder"))
         ),
         FeatureCard(
             title: "Component Snippets",
@@ -348,7 +348,7 @@ struct FeatureCard: Identifiable {
             icon: "rectangle.3.group.fill",
             accentColor: Color(hex: "#32D74B"),
             phase: 3,
-            destination: AnyView(ComponentSnippetsView())
+            destination: AnyView(PlaceholderView(title: "Component Snippets"))
         ),
         FeatureCard(
             title: "Layout Inspector",
@@ -356,7 +356,7 @@ struct FeatureCard: Identifiable {
             icon: "rectangle.split.3x1",
             accentColor: Color(hex: "#FF9F0A"),
             phase: 3,
-            destination: AnyView(PlaceholderView(title: "Layout Inspector"))
+            destination: AnyView(LayoutInspectorView())
         ),
     ]
 }
