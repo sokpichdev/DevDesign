@@ -9,23 +9,32 @@ import SwiftUI
 
 struct SafeAreaInspectorView: View {
 
-    @State private var selectedItem: SafeAreaItem? = nil
-    @State private var showingPortrait = true
-
-    // Common screen sizes
-    private let screens: [(name: String, w: CGFloat, h: CGFloat)] = [
-        ("SE 3rd Gen",  375, 667),
-        ("iPhone 15",   390, 844),
-        ("15 Pro Max",  430, 932),
-    ]
-    @State private var selectedScreen = 1   // iPhone 15
+    @State private var selectedDeviceIndex: Int = 2  // Default to iPhone 15
+    @State private var isLandscape: Bool = false
+    @State private var showingPortrait: Bool = true
+    
+    private var device: DeviceSpec {
+        var d = DeviceSpec.allDevices[selectedDeviceIndex]
+        d.isPortrait = !isLandscape
+        return d
+    }
+    
+    private var scale: CGFloat {
+        // Adjust scale based on device type for better fit
+        switch device.type {
+        case .tablet:
+            return 0.35  // Smaller scale for large iPads
+        default:
+            return 0.52
+        }
+    }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: DSSpacing.md) {
 
-                // Screen model picker
-                screenPicker
+                // Device picker + orientation toggle
+                deviceControls
 
                 // iPhone diagram
                 phoneDiagram
@@ -43,159 +52,230 @@ struct SafeAreaInspectorView: View {
         }
     }
 
-    // MARK: - Screen Picker
-    private var screenPicker: some View {
-        HStack(spacing: DSSpacing.xs) {
-            ForEach(screens.indices, id: \.self) { i in
-                let isSelected = selectedScreen == i
-                Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        selectedScreen = i
-                    }
-                } label: {
-                    Text(screens[i].name)
-                        .font(DSTypography.labelLarge)
-                        .foregroundStyle(isSelected ? .white : DSColors.Preview.textSecondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, DSSpacing.xs)
-                        .background(
-                            isSelected ? DSColors.Preview.accent : DSColors.Preview.surfaceDefault,
-                            in: Capsule()
-                        )
-                        .overlay(
-                            Capsule().strokeBorder(
-                                isSelected ? Color.clear : DSColors.Preview.borderSubtle,
-                                lineWidth: 1
+    // MARK: - Device Controls
+    private var deviceControls: some View {
+        VStack(spacing: DSSpacing.sm) {
+            // Device picker
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: DSSpacing.xs) {
+                    ForEach(Array(DeviceSpec.allDevices.enumerated()), id: \.element.id) { index, dev in
+                        let isSelected = selectedDeviceIndex == index
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                selectedDeviceIndex = index
+                            }
+                        } label: {
+                            VStack(spacing: 2) {
+                                Text(dev.name)
+                                    .font(DSTypography.labelLarge)
+                                Text("\(Int(dev.width))×\(Int(dev.height))")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .opacity(0.7)
+                            }
+                            .foregroundStyle(isSelected ? .white : DSColors.Preview.textSecondary)
+                            .frame(minWidth: 80)
+                            .padding(.horizontal, DSSpacing.sm)
+                            .padding(.vertical, DSSpacing.xs)
+                            .background(
+                                isSelected ? DSColors.Preview.accent : DSColors.Preview.surfaceDefault,
+                                in: RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
                             )
-                        )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
+                                    .strokeBorder(
+                                        isSelected ? Color.clear : DSColors.Preview.borderSubtle,
+                                        lineWidth: 1
+                                    )
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                .buttonStyle(.plain)
-                .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isSelected)
             }
+            
+            // Orientation toggle
+//            HStack(spacing: DSSpacing.sm) {
+//                orientationButton(isPortrait: true, icon: "iphone", label: "Portrait")
+//                orientationButton(isPortrait: false, icon: "iphone.landscape", label: "Landscape")
+//            }
         }
+    }
+    
+    private func orientationButton(isPortrait: Bool, icon: String, label: String) -> some View {
+        let isSelected = self.isLandscape != isPortrait
+        return Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                self.isLandscape = !isPortrait
+            }
+        } label: {
+            HStack(spacing: DSSpacing.xs) {
+                Image(systemName: icon)
+                Text(label)
+                    .font(DSTypography.labelLarge)
+            }
+            .foregroundStyle(isSelected ? .white : DSColors.Preview.textSecondary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DSSpacing.xs)
+            .background(
+                isSelected ? DSColors.Preview.accent : DSColors.Preview.surfaceDefault,
+                in: RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: DSSpacing.Radius.sm)
+                    .strokeBorder(
+                        isSelected ? Color.clear : DSColors.Preview.borderSubtle,
+                        lineWidth: 1
+                    )
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Phone Diagram
     private var phoneDiagram: some View {
-        let screen = screens[selectedScreen]
-        let scale: CGFloat = 0.52
-        let phoneW = screen.w * scale
-        let phoneH = screen.h * scale
-        // selectedScreen == 0 → SE 3rd Gen: has home button, no Dynamic Island
-        let isSE = selectedScreen == 0
-
-        // Safe area values (points, scaled)
-        // On Dynamic Island devices, status bar (~54pt) INCLUDES the Dynamic Island space
-        // On SE devices, status bar is ~20pt with no Dynamic Island
-        let statusH: CGFloat = (isSE ? 20 : 54) * scale
-        let navH:    CGFloat = 44 * scale
-        let tabH:    CGFloat = 49 * scale
-        // Bottom safe area: 34pt for Face ID (home indicator clearance), 0pt for SE
-        let bottomSafeH: CGFloat = isSE ? 0 : 34 * scale
-        // SE has 44pt physical home button area at bottom
-        let homeButtonH: CGFloat = isSE ? 44 * scale : 0
-        // Total bottom area: tab bar extends to edge, but content needs safe area clearance
-        let bottomAreaH: CGFloat = tabH + (isSE ? homeButtonH : 0)
-        let contentH: CGFloat = max(phoneH - statusH - navH - bottomAreaH, 40)
+        let screenW = device.effectiveWidth * scale
+        let screenH = device.effectiveHeight * scale
+        let phoneW = screenW + 14  // 7pt bezel each side
+        let phoneH = screenH + 20  // 10pt bezel top/bottom
+        
+        let isHomeButton = device.type == .homeButton
+        let hasDynamicIsland = device.type == .dynamicIsland
+        let hasNotch = device.type == .faceIDNotch
+        let isTablet = device.type == .tablet
+        
+        let statusH = device.statusBarHeight * scale
+        let navH: CGFloat = 44 * scale
+        let tabH: CGFloat = isTablet ? 50 * scale : 49 * scale
+        let homeButtonH: CGFloat = isHomeButton ? 44 * scale : 0
+        
+        // Calculate content height
+        let bottomAreaH = tabH + homeButtonH
+        let contentH = max(screenH - statusH - navH - bottomAreaH, 40)
+        
+        // Landscape adjustments
+        let effectiveStatusH = isLandscape ? 0 : statusH  // No status bar in landscape for most apps
+        let effectiveNavH = isLandscape ? 32 * scale : navH  // Smaller nav bar in landscape
+        let effectiveTabH = isLandscape ? (isTablet ? 50 * scale : 49 * scale) : tabH
+        let effectiveContentH = isLandscape
+            ? max(screenH - effectiveNavH - effectiveTabH, 40)
+            : contentH
 
         return VStack(spacing: DSSpacing.sm) {
             HStack {
-                Text(screen.name + " · \(Int(screen.w))×\(Int(screen.h))pt")
+                Text(device.name + (isLandscape ? " · Landscape" : " · Portrait"))
                     .font(DSTypography.labelSmall)
                     .foregroundStyle(DSColors.Preview.textTertiary)
                 Spacer()
+                Text("\(Int(device.effectiveWidth))×\(Int(device.effectiveHeight))pt")
+                    .font(DSTypography.labelSmall)
+                    .foregroundStyle(DSColors.Preview.textTertiary)
             }
             .padding(.horizontal, DSSpacing.xxs)
 
             ZStack(alignment: .top) {
-                // Phone shell — SE has smaller corner radius (home button era)
-                RoundedRectangle(cornerRadius: (isSE ? 30 : 44) * scale)
+                // Phone/tablet shell
+                RoundedRectangle(cornerRadius: device.cornerRadius * scale)
                     .fill(DSColors.Preview.backgroundTertiary)
-                    .frame(width: phoneW + 14, height: phoneH + 20)
+                    .frame(width: phoneW, height: phoneH)
                     .overlay(
-                        RoundedRectangle(cornerRadius: (isSE ? 30 : 44) * scale)
+                        RoundedRectangle(cornerRadius: device.cornerRadius * scale)
                             .strokeBorder(DSColors.Preview.textTertiary.opacity(0.4), lineWidth: 2)
                     )
 
                 // Screen content
                 VStack(spacing: 0) {
                     
-                    // Status bar zone with Dynamic Island overlay
-                    ZStack {
-                        Color(hex: "#FF6B6B").opacity(0.22)
-                        
-                        // Dynamic Island pill (only on non-SE devices) - centered in status bar
-                        if !isSE {
-                            Capsule()
-                                .fill(DSColors.Preview.backgroundPrimary)
-                                .frame(width: 80 * scale, height: 24 * scale)
-                        } else {
-                            // SE: small speaker slit at top
-                            Capsule()
-                                .fill(DSColors.Preview.backgroundPrimary.opacity(0.6))
-                                .frame(width: 44 * scale, height: 6 * scale)
-                                .offset(y: 4 * scale)
+                    // Status bar zone (hidden in landscape for iPhone, visible for iPad)
+                    if !isLandscape || isTablet {
+                        ZStack {
+                            Color(hex: "#FF6B6B").opacity(0.22)
+                            
+                            // Notch/Dynamic Island/Home Button speaker visual
+                            if hasDynamicIsland {
+                                // Dynamic Island pill
+                                Capsule()
+                                    .fill(DSColors.Preview.backgroundPrimary)
+                                    .frame(width: 80 * scale, height: 28 * scale)
+                            } else if hasNotch {
+                                // Notch - wider and more rectangular
+                                RoundedRectangle(cornerRadius: 20 * scale)
+                                    .fill(DSColors.Preview.backgroundPrimary)
+                                    .frame(width: 160 * scale, height: 28 * scale)
+                            } else if isHomeButton {
+                                // SE: small speaker slit
+                                Capsule()
+                                    .fill(DSColors.Preview.backgroundPrimary.opacity(0.6))
+                                    .frame(width: 44 * scale, height: 6 * scale)
+                                    .offset(y: 4 * scale)
+                            }
+                            // iPad has no notch visual
+                            
+                            // Status bar label
+                            HStack {
+                                Text(isTablet ? "Status Bar" : "Status")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundStyle(Color(hex: "#FF6B6B"))
+                                Spacer()
+                                Text("\(Int(device.statusBarHeight))pt")
+                                    .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                                    .foregroundStyle(Color(hex: "#FF6B6B").opacity(0.8))
+                            }
+                            .padding(.horizontal, 8)
                         }
-                        
-                        // Status bar label
-                        HStack {
-                            Text("Status Bar")
-                                .font(.system(size: 8, weight: .bold))
-                                .foregroundStyle(Color(hex: "#FF6B6B"))
-                            Spacer()
-                            Text(isSE ? "20pt" : "54pt")
-                                .font(.system(size: 8, weight: .semibold, design: .monospaced))
-                                .foregroundStyle(Color(hex: "#FF6B6B").opacity(0.8))
+                        .frame(height: statusH)
+                        .overlay(alignment: .bottom) {
+                            Rectangle()
+                                .fill(Color(hex: "#FF6B6B").opacity(0.4))
+                                .frame(height: 1)
                         }
-                        .padding(.horizontal, 8)
                     }
-                    .frame(height: statusH)
-                    .overlay(alignment: .bottom) {
-                        Rectangle()
-                            .fill(Color(hex: "#FF6B6B").opacity(0.4))
-                            .frame(height: 1)
+                    
+                    // Safe area top spacer for landscape (replaces status bar)
+                    if isLandscape && !isTablet {
+                        Color.clear
+                            .frame(height: device.bottomSafeArea * scale)
                     }
 
                     // Nav bar zone
                     zoneBar(
-                        "Nav Bar",
-                        height: navH,
+                        isLandscape ? "Nav (Compact)" : "Nav Bar",
+                        height: effectiveNavH,
                         color: Color(hex: "#FF9F0A"),
-                        label2: "44pt"
+                        label2: isLandscape ? "32pt" : "44pt"
                     )
 
                     // Content zone
                     ZStack {
                         Color(hex: "#30D158").opacity(0.18)
                         VStack(spacing: 4) {
-                            Text("Content Area")
+                            Text(isLandscape ? "Content" : "Content Area")
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundStyle(Color(hex: "#30D158"))
-                            Text("~\(Int(contentH / scale))pt")
+                            Text("~\(Int(effectiveContentH / scale))pt")
                                 .font(.system(size: 8))
                                 .foregroundStyle(Color(hex: "#30D158").opacity(0.8))
                             
                             // Show bottom safe area note for Face ID devices
-                            if !isSE {
-                                Text("(+34pt bottom safe area)")
+                            if !isHomeButton {
+                                Text("(+\(Int(device.bottomSafeArea))pt bottom safe)")
                                     .font(.system(size: 7))
                                     .foregroundStyle(Color(hex: "#30D158").opacity(0.6))
                             }
                         }
                     }
-                    .frame(height: contentH)
+                    .frame(height: effectiveContentH)
 
-                    // Tab bar zone - extends to bottom edge on Face ID devices
+                    // Tab bar zone
                     ZStack(alignment: .bottom) {
                         Color(hex: "#7B6EF6").opacity(0.22)
                         
                         // Tab bar label at top of zone
                         HStack {
-                            Text("Tab Bar")
+                            Text(isTablet ? "Tab Bar" : "Tab")
                                 .font(.system(size: 8, weight: .bold))
                                 .foregroundStyle(Color(hex: "#7B6EF6"))
                             Spacer()
-                            Text("49pt")
+                            Text(isTablet ? "50pt" : "49pt")
                                 .font(.system(size: 8, weight: .semibold, design: .monospaced))
                                 .foregroundStyle(Color(hex: "#7B6EF6").opacity(0.8))
                         }
@@ -203,19 +283,19 @@ struct SafeAreaInspectorView: View {
                         .padding(.top, 4)
                         .frame(maxHeight: .infinity, alignment: .top)
                         
-                        // Visual indicator for home indicator area on Face ID devices
-                        if !isSE {
+                        // Visual indicator for home indicator on Face ID devices
+                        if !isHomeButton {
                             VStack(spacing: 0) {
                                 Spacer()
                                 // Thin home indicator line
                                 RoundedRectangle(cornerRadius: 2 * scale)
                                     .fill(Color.white.opacity(0.9))
-                                    .frame(width: 120 * scale, height: 4 * scale)
-                                    .padding(.bottom, 8 * scale)
+                                    .frame(width: min(120 * scale, screenW * 0.3), height: 4 * scale)
+                                    .padding(.bottom, max(4 * scale, device.bottomSafeArea * scale * 0.2))
                             }
                         }
                     }
-                    .frame(height: tabH)
+                    .frame(height: effectiveTabH)
                     .overlay(alignment: .top) {
                         Rectangle()
                             .fill(Color(hex: "#7B6EF6").opacity(0.4))
@@ -223,7 +303,7 @@ struct SafeAreaInspectorView: View {
                     }
 
                     // SE: physical home button area below tab bar
-                    if isSE {
+                    if isHomeButton && !isLandscape {
                         ZStack {
                             DSColors.Preview.backgroundSecondary
                             Circle()
@@ -233,11 +313,11 @@ struct SafeAreaInspectorView: View {
                         .frame(height: homeButtonH)
                     }
                 }
-                .frame(width: phoneW, height: phoneH)
-                .clipShape(RoundedRectangle(cornerRadius: (isSE ? 28 : 40) * scale))
+                .frame(width: screenW, height: screenH)
+                .clipShape(RoundedRectangle(cornerRadius: device.screenCornerRadius * scale))
                 .padding(.top, 10) // Center screen within phone shell
             }
-            .frame(height: phoneH + 20)
+            .frame(height: phoneH)
         }
     }
 
@@ -350,8 +430,14 @@ struct SafeAreaInspectorView: View {
         ("Card padding",             "16pt",  16),
         ("List row height (min)",    "44pt",  44),
         ("Nav bar height",           "44pt",  44),
+        ("Nav bar height (landscape)", "32pt", 32),
         ("Tab bar height",           "49pt",  49),
+        ("Tab bar height (iPad)",    "50pt",  50),
         ("Touch target (min)",       "44pt",  44),
+        ("Bottom safe area (Face ID)", "34pt", 34),
+        ("Bottom safe area (iPad)",  "20pt",  20),
+        ("Status bar (Dynamic Island)", "54pt", 54),
+        ("Status bar (notch)",       "44pt",  44),
         ("Icon size (small)",        "24pt",  24),
         ("Icon size (medium)",       "28pt",  28),
         ("Corner radius (card)",     "12pt",  12),

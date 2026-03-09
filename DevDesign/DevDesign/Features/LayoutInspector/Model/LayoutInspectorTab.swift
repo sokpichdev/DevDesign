@@ -563,11 +563,21 @@ struct SafeAreaItem: Identifiable {
 }
 
 let safeAreaGuides: [SafeAreaItem] = [
-    SafeAreaItem(label: "Status Bar",    colorHex: "#FF6B6B", description: "~54pt on Dynamic Island, ~44pt on notch, ~20pt on SE"),
-    SafeAreaItem(label: "Nav Bar",       colorHex: "#FF9F0A", description: "44pt standard, 96pt with large title"),
-    SafeAreaItem(label: "Content Area",  colorHex: "#30D158", description: "Available space minus status, nav, tab, and bottom safe area"),
-    SafeAreaItem(label: "Tab Bar",       colorHex: "#7B6EF6", description: "49pt height, extends to bottom edge on Face ID devices"),
-    SafeAreaItem(label: "Bottom Safe",   colorHex: "#64D2FF", description: "34pt clearance for home indicator on Face ID devices (0pt on SE)"),
+    SafeAreaItem(label: "Status Bar",
+                 colorHex: "#FF6B6B",
+                 description: "54pt Dynamic Island, 44pt notch, 20pt SE, 24pt iPad"),
+    SafeAreaItem(label: "Nav Bar",
+                 colorHex: "#FF9F0A",
+                 description: "44pt standard, 32pt in landscape, 96pt with large title"),
+    SafeAreaItem(label: "Content Area",
+                 colorHex: "#30D158",
+                 description: "Available space minus system bars and safe area insets"),
+    SafeAreaItem(label: "Tab Bar",
+                 colorHex: "#7B6EF6",
+                 description: "49pt iPhone, 50pt iPad. Extends to bottom edge"),
+    SafeAreaItem(label: "Bottom Safe",
+                 colorHex: "#64D2FF",
+                 description: "34pt for home indicator (Face ID), 20pt iPad, 0pt SE"),
 ]
 
 // MARK: - Layout Export Service
