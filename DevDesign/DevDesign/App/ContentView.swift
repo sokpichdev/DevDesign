@@ -380,7 +380,7 @@ struct FeatureCard: Identifiable {
             icon: "waveform.path",
             accentColor: Color(hex: "#BF5AF2"),
             phase: 4,
-            destination: AnyView(PlaceholderView(title: "Animation Playground"))
+            destination: AnyView(AnimationPlaygroundView())
         ),
         FeatureCard(
             title: "Border & Decoration",
