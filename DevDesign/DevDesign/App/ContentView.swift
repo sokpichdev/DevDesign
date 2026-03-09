@@ -388,7 +388,7 @@ struct FeatureCard: Identifiable {
             icon: "rectangle.dashed",
             accentColor: Color(hex: "#FF9F0A"),
             phase: 4,
-            destination: AnyView(PlaceholderView(title: "Border & Decoration"))
+            destination: AnyView(BorderDecorationView())
         ),
         FeatureCard(
             title: "Design Token Exporter",
