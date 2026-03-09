@@ -3,6 +3,7 @@
 //  DevDesign
 //
 //  Created by Sok Pich on 3/9/26.
+//  Updated for multi-provider support
 //
 
 import SwiftUI
@@ -12,30 +13,39 @@ import Observation
 @Observable
 final class AIPaletteViewModel {
 
+    // MARK: - Provider State
+    var selectedProvider: AIProvider = ProviderKeyStore.loadSelectedProvider()
+    
+    // MARK: - API Keys (per provider)
+    var anthropicKey: String = ProviderKeyStore.loadKey(for: .anthropic) ?? ""
+    var geminiKey: String = ProviderKeyStore.loadKey(for: .gemini) ?? ""
+    var openrouterKey: String = ProviderKeyStore.loadKey(for: .openrouter) ?? ""
+
+    // MARK: - Input state for sheets
+    var apiKeyInput: String = ""
+    var providerBeingConfigured: AIProvider?
+
     // MARK: - Prompt state
-    var promptText: String        = ""
+    var promptText: String = ""
     var selectedStyle: PaletteStyle = .any
-    var colorCount: ColorCount    = .six
+    var colorCount: ColorCount = .six
 
     // MARK: - Generation state
     var generationState: GenerationState = .idle
     var currentPalette: AIGeneratedPalette? = nil
-    var revealedColorCount: Int   = 0          // drives staggered reveal animation
-    var isAnimatingReveal: Bool   = false
-
-    // MARK: - API Key
-    var apiKey: String            = ""
-    var showAPIKeySheet: Bool     = false
-    var apiKeyInput: String       = ""
-    var apiKeySaved: Bool         = false
+    var revealedColorCount: Int = 0
+    var isAnimatingReveal: Bool = false
 
     // MARK: - UI
-    var showSuggestions: Bool     = true
+    var showAPIKeySheet: Bool = false
+    var showProviderPicker: Bool = false
+    var apiKeySaved: Bool = false
+    var showSuggestions: Bool = true
     var suggestions: [PromptSuggestion] = PromptSuggestionLibrary.random(8)
     var selectedSuggestionCategory: SuggestionCategory? = nil
     var showSaveConfirmation: Bool = false
-    var copiedHex: String?        = nil
-    var showHistorySheet: Bool    = false
+    var copiedHex: String? = nil
+    var showHistorySheet: Bool = false
     var promptHistory: [PromptHistoryEntry] = []
 
     // MARK: - Save sheet
@@ -43,16 +53,34 @@ final class AIPaletteViewModel {
 
     // MARK: - Init
     init() {
-        if let saved = APIKeyStore.load() { apiKey = saved }
+        // Migrate old keys if needed
+        APIKeyStore.migrateToProviderStore()
+        
+        // Load current keys
+        anthropicKey = ProviderKeyStore.loadKey(for: .anthropic) ?? ""
+        geminiKey = ProviderKeyStore.loadKey(for: .gemini) ?? ""
         promptHistory = PromptHistoryStore.load()
     }
 
     // MARK: - Computed
-
-    var hasAPIKey: Bool { !apiKey.trimmingCharacters(in: .whitespaces).isEmpty }
+    
+    var currentAPIKey: String {
+        switch selectedProvider {
+        case .anthropic: return anthropicKey
+        case .gemini: return geminiKey
+        case .openrouter: return openrouterKey // Optional for OpenRouter!
+        }
+    }
+    
+    var hasAPIKey: Bool {
+        if !selectedProvider.requiresKey {
+            return true // OpenRouter free tier doesn't need key
+        }
+        return !currentAPIKey.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 
     var maskedKey: String {
-        hasAPIKey ? APIKeyStore.maskedDisplay(apiKey) : "Not set"
+        hasAPIKey ? ProviderKeyStore.maskedDisplay(currentAPIKey, for: selectedProvider) : "Not set"
     }
 
     var canGenerate: Bool {
@@ -71,28 +99,70 @@ final class AIPaletteViewModel {
         if case .error(let msg) = generationState { return msg }
         return nil
     }
+    
+    // MARK: - Provider Management
+    
+    func switchProvider(to provider: AIProvider) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            selectedProvider = provider
+            ProviderKeyStore.saveSelectedProvider(provider)
+        }
+    }
 
     // MARK: - API Key Management
 
+    func showKeyConfiguration(for provider: AIProvider) {
+        providerBeingConfigured = provider
+        apiKeyInput = "" // Clear input for security
+        showAPIKeySheet = true
+    }
+    
     func saveAPIKey() {
+        guard let provider = providerBeingConfigured else { return }
         let trimmed = apiKeyInput.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
-        apiKey = trimmed
-        APIKeyStore.save(trimmed)
+        
+        switch provider {
+        case .anthropic:
+            anthropicKey = trimmed
+        case .gemini:
+            geminiKey = trimmed
+        case .openrouter:
+            openrouterKey = trimmed
+        }
+        
+        ProviderKeyStore.saveKey(trimmed, for: provider)
         apiKeySaved = true
+        
         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
             showAPIKeySheet = false
         }
-        // Reset saved flash after delay
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             self?.apiKeySaved = false
         }
     }
 
-    func clearAPIKey() {
-        apiKey = ""
-        apiKeyInput = ""
-        APIKeyStore.clear()
+    func clearAPIKey(for provider: AIProvider? = nil) {
+        let target = provider ?? selectedProvider
+        ProviderKeyStore.clearKey(for: target)
+        
+        switch target {
+        case .anthropic:
+            anthropicKey = ""
+        case .gemini:
+            geminiKey = ""
+        case .openrouter:
+            openrouterKey = ""
+        }
+        
+        if providerBeingConfigured == target {
+            apiKeyInput = ""
+        }
+    }
+    
+    func clearCurrentAPIKey() {
+        clearAPIKey(for: selectedProvider)
     }
 
     // MARK: - Generation
@@ -102,10 +172,10 @@ final class AIPaletteViewModel {
         guard !prompt.isEmpty, hasAPIKey else { return }
 
         withAnimation(.easeInOut(duration: 0.2)) {
-            generationState   = .generating
-            currentPalette    = nil
+            generationState = .generating
+            currentPalette = nil
             revealedColorCount = 0
-            showSuggestions   = false
+            showSuggestions = false
         }
 
         Task { @MainActor in
@@ -114,11 +184,12 @@ final class AIPaletteViewModel {
                     prompt: prompt,
                     style: selectedStyle,
                     colorCount: colorCount,
-                    apiKey: apiKey
+                    provider: selectedProvider,
+                    apiKey: currentAPIKey
                 )
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
                     generationState = .success
-                    currentPalette  = palette
+                    currentPalette = palette
                 }
                 staggerReveal(count: palette.colors.count)
 
@@ -232,9 +303,9 @@ final class AIPaletteViewModel {
     // MARK: - History
 
     func applyHistoryEntry(_ entry: PromptHistoryEntry) {
-        promptText    = entry.prompt
+        promptText = entry.prompt
         selectedStyle = PaletteStyle(rawValue: entry.style) ?? .any
-        colorCount    = ColorCount(rawValue: entry.colorCount) ?? .six
+        colorCount = ColorCount(rawValue: entry.colorCount) ?? .six
         showHistorySheet = false
     }
 
@@ -248,7 +319,7 @@ final class AIPaletteViewModel {
         withAnimation(.easeInOut(duration: 0.2)) {
             promptText = ""
             generationState = .idle
-            currentPalette  = nil
+            currentPalette = nil
             revealedColorCount = 0
             showSuggestions = true
             suggestions = PromptSuggestionLibrary.random(8)

@@ -72,39 +72,6 @@ struct AIPaletteView: View {
         }
     }
 
-    // MARK: - API Key Banner
-    private var apiKeyBanner: some View {
-        Button { vm.showAPIKeySheet = true } label: {
-            HStack(spacing: DSSpacing.sm) {
-                Image(systemName: "key.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 32, height: 32)
-                    .background(accent, in: Circle())
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Add Anthropic API Key")
-                        .font(DSTypography.headingSmall)
-                        .foregroundStyle(DSColors.Preview.textPrimary)
-                    Text("Required to generate AI palettes")
-                        .font(DSTypography.labelSmall)
-                        .foregroundStyle(DSColors.Preview.textTertiary)
-                }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(DSColors.Preview.textTertiary)
-            }
-            .padding(DSSpacing.sm)
-            .background(accent.opacity(0.08), in: RoundedRectangle(cornerRadius: DSSpacing.Radius.md))
-            .overlay(
-                RoundedRectangle(cornerRadius: DSSpacing.Radius.md)
-                    .strokeBorder(accent.opacity(0.25), lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
     // MARK: - Prompt Card
     private var promptCard: some View {
         VStack(spacing: DSSpacing.sm) {
@@ -602,6 +569,33 @@ struct AIPaletteView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
+            // Provider picker button
+            Menu {
+                ForEach(AIProvider.allCases) { provider in
+                    Button {
+                        vm.switchProvider(to: provider)
+                    } label: {
+                        HStack {
+                            Image(systemName: provider.icon)
+                            Text(provider.rawValue)
+                            if vm.selectedProvider == provider {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: vm.selectedProvider.icon)
+                        .foregroundStyle(accent)
+                    Text(vm.selectedProvider.rawValue)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(DSColors.Preview.textSecondary)
+                }
+            }
+        }
+        
+        ToolbarItem(placement: .topBarLeading) {
             if !vm.promptHistory.isEmpty {
                 Button { vm.showHistorySheet = true } label: {
                     Image(systemName: "clock.arrow.circlepath")
@@ -609,12 +603,55 @@ struct AIPaletteView: View {
                 }
             }
         }
+        
         ToolbarItem(placement: .topBarTrailing) {
             Button { vm.showAPIKeySheet = true } label: {
                 Image(systemName: vm.hasAPIKey ? "key.fill" : "key")
                     .foregroundStyle(vm.hasAPIKey ? accent : DSColors.Preview.error)
             }
         }
+    }
+
+    // Update the apiKeyBanner to show current provider:
+    private var apiKeyBanner: some View {
+        Button { vm.showAPIKeySheet = true } label: {
+            HStack(spacing: DSSpacing.sm) {
+                Image(systemName: vm.selectedProvider.icon)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 32, height: 32)
+                    .background(accent, in: Circle())
+
+                VStack(alignment: .leading, spacing: 2) {
+                    if vm.selectedProvider.requiresKey {
+                        Text("Add \(vm.selectedProvider.rawValue) API Key")
+                            .font(DSTypography.headingSmall)
+                            .foregroundStyle(DSColors.Preview.textPrimary)
+                        Text("Required to generate AI palettes")
+                            .font(DSTypography.labelSmall)
+                            .foregroundStyle(DSColors.Preview.textTertiary)
+                    } else {
+                        Text("\(vm.selectedProvider.rawValue) Ready")
+                            .font(DSTypography.headingSmall)
+                            .foregroundStyle(DSColors.Preview.textPrimary)
+                        Text("No API key needed - tap to configure optional key")
+                            .font(DSTypography.labelSmall)
+                            .foregroundStyle(DSColors.Preview.textTertiary)
+                    }
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(DSColors.Preview.textTertiary)
+            }
+            .padding(DSSpacing.sm)
+            .background(accent.opacity(vm.selectedProvider.requiresKey && !vm.hasAPIKey ? 0.08 : 0.04), in: RoundedRectangle(cornerRadius: DSSpacing.Radius.md))
+            .overlay(
+                RoundedRectangle(cornerRadius: DSSpacing.Radius.md)
+                    .strokeBorder(accent.opacity(vm.selectedProvider.requiresKey && !vm.hasAPIKey ? 0.25 : 0.1), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Toasts
@@ -683,36 +720,53 @@ struct ShimmerView: View {
     }
 }
 
-// MARK: - API Key Setup Sheet
+// MARK: - API Key Setup Sheet (Multi-Provider)
 
 struct APIKeySetupSheet: View {
     @Bindable var vm: AIPaletteViewModel
     let accentColor: Color
     @Environment(\.dismiss) private var dismiss
     @FocusState private var fieldFocused: Bool
+    
+    // Local state for provider selection within sheet
+    @State private var selectedProvider: AIProvider = .anthropic
 
     var body: some View {
         NavigationStack {
             ZStack {
                 DSColors.Preview.backgroundPrimary.ignoresSafeArea()
+                
                 VStack(spacing: DSSpacing.xl) {
+                    
+                    // Provider selector
+                    Picker("Provider", selection: $selectedProvider) {
+                        ForEach(AIProvider.allCases) { provider in
+                            Text(provider.rawValue).tag(provider)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal, DSSpacing.screenPadding)
+                    .onChange(of: selectedProvider) { _, newProvider in
+                        vm.providerBeingConfigured = newProvider
+                        vm.apiKeyInput = "" // Clear when switching
+                    }
 
                     // Icon
                     ZStack {
                         Circle()
                             .fill(accentColor.opacity(0.12))
                             .frame(width: 80, height: 80)
-                        Image(systemName: "key.fill")
+                        Image(systemName: selectedProvider.icon)
                             .font(.system(size: 32, weight: .light))
                             .foregroundStyle(accentColor)
                     }
-                    .padding(.top, DSSpacing.xl)
+                    .padding(.top, DSSpacing.sm)
 
                     VStack(spacing: DSSpacing.sm) {
-                        Text("Anthropic API Key")
+                        Text("\(selectedProvider.rawValue) API Key")
                             .font(DSTypography.headingLarge)
                             .foregroundStyle(DSColors.Preview.textPrimary)
-                        Text("Required for AI-powered palette generation. Your key is stored on-device only — never transmitted except directly to api.anthropic.com.")
+                        Text(selectedProvider.description)
                             .font(DSTypography.bodySmall)
                             .foregroundStyle(DSColors.Preview.textTertiary)
                             .multilineTextAlignment(.center)
@@ -724,7 +778,13 @@ struct APIKeySetupSheet: View {
                         Text("API Key")
                             .font(DSTypography.labelLarge)
                             .foregroundStyle(DSColors.Preview.textSecondary)
-                        SecureField("sk-ant-api03-…", text: $vm.apiKeyInput)
+                        
+                        if selectedProvider == .openrouter {
+                                Text("Optional - only needed for higher rate limits")
+                                    .font(DSTypography.labelSmall)
+                                    .foregroundStyle(DSColors.Preview.textTertiary)
+                            }
+                        SecureField(selectedProvider.keyPlaceholder, text: $vm.apiKeyInput)
                             .font(DSTypography.codeMedium)
                             .foregroundStyle(DSColors.Preview.textPrimary)
                             .autocorrectionDisabled()
@@ -740,26 +800,45 @@ struct APIKeySetupSheet: View {
                                         lineWidth: 1
                                     )
                             )
+                        
+                        // Validation hint
+                        if !vm.apiKeyInput.isEmpty && !vm.apiKeyInput.hasPrefix(selectedProvider.keyPrefix) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(DSColors.Preview.error)
+                                Text("Key should start with \(selectedProvider.keyPrefix)")
+                                    .font(DSTypography.labelSmall)
+                                    .foregroundStyle(DSColors.Preview.error)
+                            }
+                            .padding(.top, 2)
+                        }
                     }
                     .padding(.horizontal, DSSpacing.screenPadding)
 
-                    // Current key display
-                    if vm.hasAPIKey {
+                    // Current key display for selected provider
+                    let currentKey = getCurrentKey(for: selectedProvider)
+                    if !currentKey.isEmpty {
                         HStack(spacing: DSSpacing.xs) {
-                            Image(systemName: "checkmark.circle.fill").foregroundStyle(DSColors.Preview.success)
-                            Text("Current: \(vm.maskedKey)")
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(DSColors.Preview.success)
+                            Text("Current: \(ProviderKeyStore.maskedDisplay(currentKey, for: selectedProvider))")
                                 .font(DSTypography.codeMedium)
                                 .foregroundStyle(DSColors.Preview.textTertiary)
                             Spacer()
-                            Button("Clear") { vm.clearAPIKey() }
-                                .font(DSTypography.labelLarge)
-                                .foregroundStyle(DSColors.Preview.error)
+                            Button("Clear") {
+                                vm.clearAPIKey(for: selectedProvider)
+                            }
+                            .font(DSTypography.labelLarge)
+                            .foregroundStyle(DSColors.Preview.error)
                         }
                         .padding(.horizontal, DSSpacing.screenPadding)
                     }
 
                     // Save button
-                    Button { vm.saveAPIKey() } label: {
+                    Button {
+                        vm.saveAPIKey()
+                    } label: {
                         Text("Save Key")
                             .font(DSTypography.headingSmall)
                             .foregroundStyle(.white)
@@ -775,10 +854,10 @@ struct APIKeySetupSheet: View {
                     .padding(.horizontal, DSSpacing.screenPadding)
 
                     // Get key link
-                    Link(destination: URL(string: "https://console.anthropic.com/settings/keys")!) {
+                    Link(destination: URL(string: selectedProvider.helpURL)!) {
                         HStack(spacing: 4) {
                             Image(systemName: "safari")
-                            Text("Get an API key at console.anthropic.com")
+                            Text("Get a key at \(URL(string: selectedProvider.helpURL)!.host ?? "")")
                         }
                         .font(DSTypography.labelLarge)
                         .foregroundStyle(accentColor)
@@ -794,11 +873,26 @@ struct APIKeySetupSheet: View {
                     Button("Done") { dismiss() }.foregroundStyle(accentColor)
                 }
             }
-            .onAppear { fieldFocused = true }
+            .onAppear {
+                fieldFocused = true
+                // Initialize with current provider if not set
+                if vm.providerBeingConfigured == nil {
+                    vm.providerBeingConfigured = vm.selectedProvider
+                }
+                selectedProvider = vm.providerBeingConfigured ?? .anthropic
+            }
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(DSColors.Preview.backgroundSecondary)
+    }
+    
+    private func getCurrentKey(for provider: AIProvider) -> String {
+        switch provider {
+        case .anthropic: return vm.anthropicKey
+        case .gemini: return vm.geminiKey
+        case .openrouter: return vm.openrouterKey
+        }
     }
 }
 
