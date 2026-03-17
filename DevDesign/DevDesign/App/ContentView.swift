@@ -199,11 +199,14 @@ struct FeatureCardView: View {
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
         }
         .buttonStyle(.plain)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded   { _ in isPressed = false }
-        )
+//        .simultaneousGesture(
+//            DragGesture(minimumDistance: 0)
+//                .onChanged { _ in isPressed = true }
+//                .onEnded   { _ in isPressed = false }
+//        )
+        .onTapGesture {
+            isPressed = true
+        }
     }
 }
 
