@@ -60,3 +60,17 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# Secrets & local config (never commit these)
+.env
+.env.local
+.env*.local
+*.xcconfig.local
+Secrets.swift
+Secrets.plist
+GoogleService-Info.plist
+AuthKey_*.p8
+
+# macOS
+.DS_Store
+*.swp
