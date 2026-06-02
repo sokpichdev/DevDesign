@@ -35,31 +35,31 @@ struct DashboardView: View {
                         headerSection
 
                         // ── Phase 1 — Color Tools ────────────────────────────
-                        sectionHeader(title: "Color Tools", subtitle: "Phase 1")
+                        sectionHeader(title: "Color Tools")
                             .padding(.top, DSSpacing.lg)
 
                         featuresGrid(cards: features.filter { $0.phase == 1 })
 
                         // ── Phase 2 — Typography & Spacing ───────────────────
-                        sectionHeader(title: "Typography & Spacing", subtitle: "Phase 2")
+                        sectionHeader(title: "Typography & Spacing")
                             .padding(.top, DSSpacing.xl)
 
                         featuresGrid(cards: features.filter { $0.phase == 2 })
 
                         // ── Phase 3 — Component & Layout ───────────────────
-                        sectionHeader(title: "Component & Layout", subtitle: "Phase 3")
+                        sectionHeader(title: "Component & Layout")
                             .padding(.top, DSSpacing.xl)
 
                         featuresGrid(cards: features.filter { $0.phase == 3 })
 
                         // ── Phase 4 — Assets & Motion ────────────────────
-                        sectionHeader(title: "Assets & Motion", subtitle: "Phase 4")
+                        sectionHeader(title: "Assets & Motion")
                             .padding(.top, DSSpacing.xl)
 
                         featuresGrid(cards: features.filter { $0.phase == 4 })
 
                         // ── Phase 5 — AI ─────────────────────────────────
-                        sectionHeader(title: "AI Features", subtitle: "Phase 5")
+                        sectionHeader(title: "AI Features")
                             .padding(.top, DSSpacing.xl)
 
                         featuresGrid(cards: features.filter { $0.phase == 5 })
@@ -104,17 +104,19 @@ struct DashboardView: View {
     }
 
     // MARK: - Section Header
-    private func sectionHeader(title: String, subtitle: String) -> some View {
+    private func sectionHeader(title: String, subtitle: String? = "") -> some View {
         HStack(alignment: .lastTextBaseline, spacing: DSSpacing.xs) {
             Text(title)
                 .font(DSTypography.headingMedium)
                 .foregroundStyle(DSColors.Preview.textPrimary)
-            Text(subtitle)
-                .font(DSTypography.labelMedium)
-                .foregroundStyle(DSColors.Preview.textTertiary)
-                .padding(.horizontal, DSSpacing.xs)
-                .padding(.vertical, 3)
-                .background(DSColors.Preview.backgroundTertiary, in: Capsule())
+            if let subtitle = subtitle, subtitle != "" {
+                Text(subtitle)
+                    .font(DSTypography.labelMedium)
+                    .foregroundStyle(DSColors.Preview.textTertiary)
+                    .padding(.horizontal, DSSpacing.xs)
+                    .padding(.vertical, 3)
+                    .background(DSColors.Preview.backgroundTertiary, in: Capsule())
+            }
             Spacer()
         }
     }
