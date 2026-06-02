@@ -3,8 +3,8 @@
 > Offline-first iOS toolkit for designers and developers — 17 tools, AI-powered palettes
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/home_color_typo.png" width="280"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/home_components_asset_ai.png" width="280"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/home_color_typo.png" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/home_components_asset_ai.png" width="160"/>
 </p>
 
 ## Overview
@@ -48,44 +48,44 @@ DevDesign is a native iPhone app for iOS 17+ that bundles 17 reference and gener
 
 ### Color & Palette
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/color_picker.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/palette_generator.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/gradient_builder.gif" width="200"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/color_picker.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/palette_generator.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/gradient_builder.gif" width="160"/>
 </p>
 
 ### AI Features
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/ai_palette_generator.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/ai_history.gif" width="200"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/ai_palette_generator.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/ai_history.gif" width="160"/>
 </p>
 
 ### Typography & Tokens
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/type_scale.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/font_pairings.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/token_explorer.gif" width="200"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/type_scale.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/font_pairings.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/token_explorer.gif" width="160"/>
 </p>
 
 ### Components & Accessibility
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/components.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/contrast_checker.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/sf_symbols.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/sf_symbols_detail.gif" width="200"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/components.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/contrast_checker.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/sf_symbols.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/sf_symbols_detail.gif" width="160"/>
 </p>
 
 ### Layout & Spacing
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/layout_inspector.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/layout_inspector_safe_area.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/spacing_system.gif" width="200"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/layout_inspector.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/layout_inspector_safe_area.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/spacing_system.gif" width="160"/>
 </p>
 
 ### Animations & Effects
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/animation_playground.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/border_decorations.gif" width="200"/>
-  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/shadow_playground.gif" width="200"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/animation_playground.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/border_decorations.gif" width="160"/>
+  <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/shadow_playground.gif" width="160"/>
 </p>
 
 ## Tech Stack
