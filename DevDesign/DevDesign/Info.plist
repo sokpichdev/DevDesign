@@ -26,5 +26,114 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+    <!--
+      Info.plist additions for DevDesign v1.1 — App Icon Picker
+      ─────────────────────────────────────────────────────────
+      Add these keys inside the root <dict> of your Info.plist.
+
+      Each alternate icon name MUST match:
+        1. The key inside CFBundleAlternateIcons  (e.g. "AppIcon-Dark")
+        2. AppIconVariant.iconName               (e.g. "AppIcon-Dark")
+        3. The filename in your asset catalog    (e.g. AppIcon-Dark.imageset)
+    -->
+
+    <key>CFBundleIcons</key>
+    <dict>
+
+        <!-- ── Primary icon ───────────────────────────────────────────────── -->
+        <key>CFBundlePrimaryIcon</key>
+        <dict>
+            <key>CFBundleIconFiles</key>
+            <array>
+                <string>AppIcon</string>
+            </array>
+            <key>UIPrerenderedIcon</key>
+            <false/>
+        </dict>
+
+        <!-- ── Alternate icons ────────────────────────────────────────────── -->
+        <key>CFBundleAlternateIcons</key>
+        <dict>
+
+            <key>AppIcon-Dark</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Dark</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+            <key>AppIcon-Minimal</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Minimal</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+            <key>AppIcon-Neon</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Neon</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+            <key>AppIcon-Sunset</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Sunset</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+            <key>AppIcon-Ocean</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Ocean</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+            <key>AppIcon-Mono</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Mono</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+            <key>AppIcon-Gold</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Gold</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+        </dict>
+    </dict>
+
+    <!--
+      ── Important notes ────────────────────────────────────────────────────────
+
+      1. ASSET CATALOG
+         Place each icon as a standalone imageset inside Assets.xcassets:
+           Assets.xcassets/
+           ├── AppIcon.appiconset/            ← primary (keep existing)
+           ├── AppIcon-Dark.imageset/
+           │   ├── Contents.json
+           │   └── AppIcon-Dark.png           ← 1024×1024 master
+           ├── AppIcon-Minimal.imageset/
+           ⋮   (same pattern for each variant)
+
+         See the Contents.json files in Assets/AppIcons/ for exact format.
+
+      2. ALTERNATE ICON IMAGES
+         Unlike the primary AppIcon, alternate icons do NOT need all size variants.
+         iOS accepts a single 1024×1024 PNG and scales it automatically.
+         Use a plain imageset (not appiconset) for alternates.
+
+      3. UIPrerenderedIcon = false
+         Always false — iOS adds the gloss/rounded-corner treatment automatically.
+
+      4. Simulator limitation
+         UIApplication.setAlternateIconName ALWAYS fails on the Simulator.
+         Test alternate icons on a physical device only.
+         The AppIconPickerView handles this gracefully via AppIconError.notSupported.
+    -->
 </dict>
 </plist>
