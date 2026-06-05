@@ -64,6 +64,12 @@ struct DashboardView: View {
 
                         featuresGrid(cards: features.filter { $0.phase == 5 })
 
+                        // ── v1.1 — Customisation ─────────────────────────
+                        sectionHeader(title: "Customisation", subtitle: "v1.1")
+                            .padding(.top, DSSpacing.xl)
+
+                        featuresGrid(cards: features.filter { $0.phase == 11 })
+
                         Spacer(minLength: DSSpacing.xxxl)
                     }
                     .padding(.horizontal, DSSpacing.screenPadding)
@@ -412,6 +418,16 @@ struct FeatureCard: Identifiable {
             accentColor: Color(hex: "#BF5AF2"),
             phase: 5,
             destination: AnyView(AIPaletteView())
+        ),
+
+        // ── v1.1 — Customisation ──────────────────────────────────
+        FeatureCard(
+            title: "App Icon",
+            subtitle: "Personalise your home screen",
+            icon: "app.badge.checkmark",
+            accentColor: Color(hex: "#7B6EF6"),
+            phase: 11,
+            destination: AnyView(AppIconPickerView())
         ),
     ]
 }

@@ -60,6 +60,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+<<<<<<< Updated upstream
 
 # Secrets & local config (never commit these)
 .env
@@ -74,3 +75,6 @@ AuthKey_*.p8
 # macOS
 .DS_Store
 *.swp
+=======
+.DS_Store
+>>>>>>> Stashed changes
