@@ -78,3 +78,6 @@ AuthKey_*.p8
 =======
 .DS_Store
 >>>>>>> Stashed changes
+.mobile-agents/
+CLAUDE.md
+/mobile-engineering-agents
