@@ -394,6 +394,14 @@ struct FeatureCard: Identifiable {
             destination: AnyView(AnimationPlaygroundView())
         ),
         FeatureCard(
+            title: "Metal Symbols",
+            subtitle: "Animate SF Symbols with shaders",
+            icon: "wand.and.stars",
+            accentColor: Color(hex: "#64D2FF"),
+            phase: 4,
+            destination: AnyView(MetalSymbolsView())
+        ),
+        FeatureCard(
             title: "Border & Decoration",
             subtitle: "Corners, strokes, glows & patterns",
             icon: "rectangle.dashed",
