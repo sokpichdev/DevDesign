@@ -402,6 +402,14 @@ struct FeatureCard: Identifiable {
             destination: AnyView(MetalSymbolsView())
         ),
         FeatureCard(
+            title: "Symbol Effects",
+            subtitle: "Apple's native symbol animations",
+            icon: "sparkles.rectangle.stack",
+            accentColor: Color(hex: "#FF9F0A"),
+            phase: 4,
+            destination: AnyView(SymbolEffectsView())
+        ),
+        FeatureCard(
             title: "Border & Decoration",
             subtitle: "Corners, strokes, glows & patterns",
             icon: "rectangle.dashed",
