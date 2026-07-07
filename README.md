@@ -116,6 +116,23 @@ View (SwiftUI)
             └─ SwiftData / CloudKit (SavedPalette, SavedColor)
 ```
 
+## Folder Structure
+
+```
+DevDesign/
+├── App/                    # App entry point, ContentView dashboard grid
+├── Core/                   # HarmonyEngine, ContrastEngine, ExportService, shared utilities
+├── DesignSystem/           # Shared design tokens and reusable UI primitives
+├── Features/               # One folder per tool (View + ViewModel + tests), e.g.
+│                            # PaletteGenerator/, ColorPicker/, ContrastChecker/, TypeScale/,
+│                            # FontPairing/, SpacingSystem/, SFSymbols/, ShadowPlayground/,
+│                            # GradientBuilder/, ComponentSnippets/, LayoutInspector/,
+│                            # AppIconGenerator/, AnimationPlayground/, BorderDecoration/,
+│                            # DesignTokenExporter/, AIPalette/
+├── DevDesignTests/          # ~741 unit tests across 18 feature files
+└── DevDesignUITests/
+```
+
 ## Setup
 
 ```bash
@@ -143,6 +160,26 @@ The AI Palette feature supports three providers. OpenRouter works out of the box
 - **~741 unit tests** across 18 feature files
 - **Multi-provider AI** — Claude, Gemini, and OpenRouter behind a single `AIProvider` protocol
 - **`@Observable` + SwiftData + CloudKit** — modern Swift 5.9 stack
+
+---
+
+## Project Status
+
+✅ Stable — all 17 tools and the AI Palette feature are shipped, with ~741 unit tests across 18 feature
+files.
+
+## Roadmap
+
+- [ ] [Add planned features here, e.g. additional AI providers or export formats]
+- [ ] [...]
+
+## License
+
+[MIT / Apache-2.0 / To be determined — add a LICENSE file before claiming a license.]
+
+## Author
+
+**Sok Pich** — [@sokpichdev](https://github.com/sokpichdev)
 
 ---
 

@@ -394,6 +394,22 @@ struct FeatureCard: Identifiable {
             destination: AnyView(AnimationPlaygroundView())
         ),
         FeatureCard(
+            title: "Metal Symbols",
+            subtitle: "Animate SF Symbols with shaders",
+            icon: "wand.and.stars",
+            accentColor: Color(hex: "#64D2FF"),
+            phase: 4,
+            destination: AnyView(MetalSymbolsView())
+        ),
+        FeatureCard(
+            title: "Symbol Effects",
+            subtitle: "Apple's native symbol animations",
+            icon: "sparkles.rectangle.stack",
+            accentColor: Color(hex: "#FF9F0A"),
+            phase: 4,
+            destination: AnyView(SymbolEffectsView())
+        ),
+        FeatureCard(
             title: "Border & Decoration",
             subtitle: "Corners, strokes, glows & patterns",
             icon: "rectangle.dashed",
