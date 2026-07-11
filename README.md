@@ -10,6 +10,7 @@
   <img alt="Language" src="https://img.shields.io/badge/Swift-5.9-orange"/>
   <img alt="UI" src="https://img.shields.io/badge/UI-SwiftUI-green"/>
   <img alt="Status" src="https://img.shields.io/badge/status-stable-brightgreen"/>
+  <img alt="" src="https://komarev.com/ghpvc/?username=sokpichdev&color=blueviolet"/>
 </p>
 
 ---
