@@ -1,7 +1,7 @@
 <h1 align="center">DevDesign</h1>
 
 <p align="center">
-  <strong>Offline-first iOS toolkit for designers and developers — 17 tools, AI-powered palettes.</strong><br/>
+  <strong>Offline-first iOS toolkit for designers and developers — 19 tools, AI-powered palettes.</strong><br/>
   <sub>No backend, no ads, no account required. Only the AI Palette feature touches the network.</sub>
 </p>
 
@@ -10,6 +10,7 @@
   <img alt="Language" src="https://img.shields.io/badge/Swift-5.9-orange"/>
   <img alt="UI" src="https://img.shields.io/badge/UI-SwiftUI-green"/>
   <img alt="Status" src="https://img.shields.io/badge/status-stable-brightgreen"/>
+  <a href="https://sokpich.dev/devdesign"><img alt="Landing page" src="https://img.shields.io/badge/landing%20page-sokpich.dev%2Fdevdesign-6366f1"/></a>
   <img alt="" src="https://komarev.com/ghpvc/?username=sokpichdev&color=blueviolet"/>
 </p>
 
@@ -82,6 +83,20 @@
 | <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/animation_playground.gif" width="160"/> | <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/border_decorations.gif" width="160"/> | <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/shadow_playground.gif" width="160"/> |
 | Spring & easing curve builder with 6 preview targets | Corners, borders, glows, and overlay patterns | Multi-layer shadow builder with code export |
 
+### Symbol Animation
+
+| Metal Symbols | Symbol Effects |
+|---|---|
+| _GIF coming soon_ | _GIF coming soon_ |
+| Metal shaders (shimmer, gradient flow, noise, liquid metal) applied to SF Symbols | Apple's native `.symbolEffect` animations with copyable SwiftUI output |
+
+### Customisation
+
+| Alternate App Icons |
+|---|
+| _GIF coming soon_ |
+| 8 bundled icon variants switchable from inside the app |
+
 ---
 
 ## Features
@@ -107,6 +122,10 @@
 ### Assets & Motion
 - **App Icon Generator** — all 14 iOS sizes, `Contents.json`, and PNG export
 - **Animation Playground** — spring & easing curve builder with 6 live preview targets
+- **Metal Symbols** — shimmer, gradient flow, noise, and liquid-metal `[[stitchable]]` Metal
+  shaders applied to SF Symbols via `.colorEffect` / `.distortionEffect`
+- **Symbol Effects** — Apple's native `.symbolEffect` animations (bounce, pulse, variable
+  color, wiggle, breathe, rotate) with copyable SwiftUI output
 - **Border & Decoration** — corners, borders, glows, and overlay patterns
 - **Design Token Exporter** — Swift enum, W3C JSON, and CSS custom properties
 
@@ -117,7 +136,11 @@
 - Prompt suggestion library (25 suggestions across 5 categories) and prompt history with palette snapshots
 - Staggered spring color-reveal animation; save directly to Saved Palettes
 
-<!-- Highlights: 17 tools in one app, fully offline except AI Palette. Zero external
+### Customisation (v1.1)
+- **Alternate App Icons** — 8 bundled variants (Default, Dark, Minimal, Neon, Sunset, Ocean,
+  Mono, Gold) wired to `CFBundleAlternateIcons` and switchable in-app
+
+<!-- Highlights: 19 tools in one app, fully offline except AI Palette. Zero external
      dependencies — no SPM packages, everything built on Apple frameworks. Multi-provider
      AI behind a single AIProvider protocol. @Observable + SwiftData + CloudKit stack. -->
 
@@ -133,6 +156,7 @@
 | **Architecture** | MVVM + Feature Modules |
 | **Persistence** | SwiftData |
 | **Sync** | CloudKit |
+| **Shaders** | Metal — `[[stitchable]]` functions via SwiftUI `ShaderLibrary` |
 | **Networking** | URLSession (AI Palette only) |
 | **AI Providers** | Anthropic (Claude), Google Gemini, OpenRouter |
 | **Font Loading** | CoreText, actor-based loader with request coalescing |
@@ -174,9 +198,10 @@ DevDesign/
 │                            # PaletteGenerator/, ColorPicker/, ContrastChecker/, TypeScale/,
 │                            # FontPairing/, SpacingSystem/, SFSymbols/, ShadowPlayground/,
 │                            # GradientBuilder/, ComponentSnippets/, LayoutInspector/,
-│                            # AppIconGenerator/, AnimationPlayground/, BorderDecoration/,
-│                            # DesignTokenExporter/, AIPalette/
-├── DevDesignTests/          # ~741 unit tests across 18 feature files
+│                            # AppIconGenerator/, AnimationPlayground/, MetalSymbols/,
+│                            # SymbolEffects/, BorderDecoration/, DesignTokenExporter/,
+│                            # AIPalette/, AppIconPicker/
+├── DevDesignTests/          # ~771 unit tests across 21 feature files
 └── DevDesignUITests/
 ```
 
@@ -191,7 +216,7 @@ DevDesign/
 
 ### Clone
 ```bash
-git clone https://github.com/cobra-PICH/DevDesign.git
+git clone https://github.com/sokpichdev/DevDesign.git
 cd DevDesign
 open DevDesign.xcodeproj
 ```
@@ -216,34 +241,36 @@ The AI Palette feature supports three providers. OpenRouter works out of the box
 xcodebuild test -scheme DevDesign -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
-- **Coverage:** ~741 unit tests across 18 feature files in `DevDesignTests/`, plus `DevDesignUITests/`.
+- **Coverage:** ~771 unit tests across 21 feature files in `DevDesignTests/`, plus `DevDesignUITests/`.
 
 ---
 
 ## Project Status
 
-✅ Stable — all 17 tools and the AI Palette feature are shipped, with ~741 unit tests across 18
+✅ Stable — all 19 tools and the AI Palette feature are shipped, with ~771 unit tests across 21
 feature files.
 
 ---
 
 ## Roadmap
 
-- [x] 17 core tools + AI Palette shipped
+- [x] 19 core tools + AI Palette shipped
+- [x] Metal Symbols and Symbol Effects (v1.1)
+- [x] Alternate app icons (v1.1)
+- [ ] Record demo GIFs for Metal Symbols, Symbol Effects, and the app icon picker
 - [ ] Additional AI providers
 - [ ] Additional export formats
-- [ ] [Add more items here]
 
 ---
 
 ## License
 
-MIT / Apache-2.0 / To be determined — add a LICENSE file before claiming a license.
+[MIT](LICENSE) © 2026 Sok Pich
 
 ---
 
 ## Author
 
-**Sok Pich** — [@sokpichdev](https://github.com/sokpichdev)
+**Sok Pich** — [@sokpichdev](https://github.com/sokpichdev) · [sokpich.dev/devdesign](https://sokpich.dev/devdesign)
 
 <sub>iOS 17+ · iPhone only · Offline-first</sub>
