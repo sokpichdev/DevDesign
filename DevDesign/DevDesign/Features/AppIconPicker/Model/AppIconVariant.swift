@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Represents one of the bundled app icon variants.
 /// The `iconName` must exactly match the CFBundleAlternateIcons key in Info.plist.
@@ -62,5 +63,21 @@ enum AppIconVariant: String, CaseIterable, Identifiable {
     /// Whether the picker card background is light (affects label text colour).
     var isLight: Bool {
         self == .minimal || self == .gold
+    }
+
+    // MARK: - Availability
+
+    /// True when this variant's imageset actually exists in the asset catalog.
+    /// Alternates are declared as plain imagesets (not appiconsets) precisely so they can be
+    /// resolved by name here and previewed in the picker.
+    var isAvailable: Bool {
+        guard let iconName else { return true }   // .default — primary icon
+        return UIImage(named: iconName) != nil
+    }
+
+    /// The variants that can actually be applied on this build.
+    /// Use this instead of `allCases` so unbuilt art never reaches the user.
+    static var available: [AppIconVariant] {
+        allCases.filter(\.isAvailable)
     }
 }

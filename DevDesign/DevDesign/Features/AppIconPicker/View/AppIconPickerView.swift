@@ -79,7 +79,7 @@ struct AppIconPickerView: View {
 
     private var iconGrid: some View {
         LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(AppIconVariant.allCases) { variant in
+            ForEach(AppIconVariant.available) { variant in
                 iconCard(variant)
             }
         }
