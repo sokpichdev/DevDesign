@@ -18,9 +18,10 @@ final class AIPaletteViewModel {
 
     // MARK: - API Keys (one per provider)
 
-    var anthropicKey:   String = ProviderKeyStore.loadKey(for: .anthropic)   ?? ""
-    var geminiKey:      String = ProviderKeyStore.loadKey(for: .gemini)      ?? ""
-    var openrouterKey:  String = ProviderKeyStore.loadKey(for: .openrouter)  ?? ""
+    // Populated in init(), after legacy migration has moved keys into the Keychain.
+    var anthropicKey:   String = ""
+    var geminiKey:      String = ""
+    var openrouterKey:  String = ""
 
     // MARK: - Sheet state
 

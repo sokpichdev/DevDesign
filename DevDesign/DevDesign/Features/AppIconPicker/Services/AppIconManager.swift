@@ -33,6 +33,10 @@ final class AppIconManager {
             throw AppIconError.notSupported
         }
 
+        guard variant.isAvailable else {
+            throw AppIconError.assetMissing(variant.label)
+        }
+
         // Already active — no-op
         if currentVariant == variant { return }
 
@@ -51,6 +55,7 @@ final class AppIconManager {
 enum AppIconError: LocalizedError {
     case notSupported
     case setFailed(String)
+    case assetMissing(String)
 
     var errorDescription: String? {
         switch self {
@@ -58,6 +63,8 @@ enum AppIconError: LocalizedError {
             return "Alternate icons are not supported on this device."
         case .setFailed(let msg):
             return "Could not change app icon: \(msg)"
+        case .assetMissing(let name):
+            return "The \(name) icon hasn't been added to this build yet."
         }
     }
 }

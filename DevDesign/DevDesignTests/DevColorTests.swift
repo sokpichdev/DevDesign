@@ -33,9 +33,16 @@ final class DevColorTests: XCTestCase {
     }
 
     func test_initFromHex_invalid_returnsNil() {
-        XCTAssertNil(DevColor(hex: "ZZZZZZ"))
-        XCTAssertNil(DevColor(hex: "123"))     // shorthand only valid as #RGB
+        XCTAssertNil(DevColor(hex: "ZZZZZZ"))  // not hex digits
+        XCTAssertNil(DevColor(hex: "12345"))   // wrong length
         XCTAssertNil(DevColor(hex: ""))
+    }
+
+    func test_initFromHex_shorthand_doesNotRequireHash() {
+        // The parser strips any leading '#', so shorthand works with or without it —
+        // consistent with full-length values, which also parse bare.
+        XCTAssertEqual(DevColor(hex: "123")?.hex.uppercased(), "#112233")
+        XCTAssertEqual(DevColor(hex: "#123")?.hex.uppercased(), "#112233")
     }
 
     func test_initFromRGB_clamping() {

@@ -88,8 +88,14 @@ final class GradientBuilderTests: XCTestCase {
         let id = vm.config.stops.first!.id
         vm.updateStopColor(.red, id: id)
         let stop = vm.config.stops.first(where: { $0.id == id })!
-        // Compare via UIColor to avoid SwiftUI Color equality quirks
-        XCTAssertEqual(UIColor(stop.color).cgColor, UIColor.red.cgColor)
+        // Compare RGB components, not CGColor: SwiftUI's Color.red is the semantic
+        // system red (#FF453A), not UIKit's pure UIColor.red, and the two also differ
+        // in colour space.
+        let actual   = GradientExportService.components(stop.color)
+        let expected = GradientExportService.components(.red)
+        XCTAssertEqual(actual.r, expected.r, accuracy: 0.001)
+        XCTAssertEqual(actual.g, expected.g, accuracy: 0.001)
+        XCTAssertEqual(actual.b, expected.b, accuracy: 0.001)
     }
 
     func test_updateStopPosition_clampsToRange() {
@@ -303,6 +309,9 @@ final class GradientBuilderTests: XCTestCase {
 
     func test_linearPoints_180deg_startAndEndDiffer() {
         let (start, end) = GradientExportService.linearPoints(180)
-        XCTAssertNotEqual(start.y, end.y, accuracy: 0.01)
+        // At 180° the axis is horizontal: x runs 0 → 1 while y stays at 0.5.
+        XCTAssertNotEqual(start.x, end.x, accuracy: 0.01)
+        XCTAssertEqual(start.x, 0, accuracy: 0.01)
+        XCTAssertEqual(end.x, 1, accuracy: 0.01)
     }
 }

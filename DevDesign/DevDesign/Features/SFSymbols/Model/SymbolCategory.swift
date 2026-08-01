@@ -228,7 +228,7 @@ enum SFSymbolCatalog {
         sym("antenna.radiowaves.left.and.right", .devices, ["signal", "radio"]),
         sym("battery.100",                .devices, ["power", "charge"]),
         sym("battery.50",                 .devices, ["power"]),
-        sym("bolt",                       .devices, ["power", "charge", "fast"]),
+        sym("bolt",                       .devices, ["power", "charge", "fast", "lightning", "storm", "energy"]),
         sym("bolt.fill",                  .devices, ["power", "charge"]),
         sym("bolt.circle",                .devices, ["charge"]),
         sym("bolt.circle.fill",           .devices, ["charge"]),
@@ -428,7 +428,6 @@ enum SFSymbolCatalog {
         sym("flame.fill",                 .nature, ["fire", "hot"]),
         sym("drop",                       .nature, ["water", "liquid"]),
         sym("drop.fill",                  .nature, ["water"]),
-        sym("bolt",                       .nature, ["lightning", "storm", "energy"]),
         sym("sparkles",                   .nature, ["magic", "ai", "new", "shiny"]),
         sym("sparkle",                    .nature, ["magic", "ai"]),
     ]

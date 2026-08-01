@@ -127,8 +127,11 @@ final class AppIconGeneratorTests: XCTestCase {
     func test_applyPreset_setsBackgroundColor() {
         let preset = AppIconViewModel.presets.first!
         vm.applyPreset(preset)
+        // colorHex returns a bare hex by design — callers prepend '#' themselves —
+        // while presets store the '#'-prefixed form.
         let hex = AppIconExportService.colorHex(vm.config.backgroundColor).uppercased()
-        XCTAssertEqual(hex, preset.bg.uppercased())
+        let expected = preset.bg.uppercased().replacingOccurrences(of: "#", with: "")
+        XCTAssertEqual(hex, expected)
     }
 
     func test_applyPreset_setsContentTypeToSymbol() {

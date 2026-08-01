@@ -10,6 +10,7 @@
 // DevDesign — Tests/AppIconPickerTests.swift
 
 import XCTest
+import UIKit
 @testable import DevDesign
 
 @MainActor
@@ -198,5 +199,58 @@ final class AppIconPickerTests: XCTestCase {
         let names = AppIconVariant.allCases.compactMap { $0.iconName }
         let unique = Set(names)
         XCTAssertEqual(unique.count, names.count, "Each alternate icon name should be unique")
+    }
+
+    // MARK: - Availability
+
+    func test_default_isAlwaysAvailable() {
+        XCTAssertTrue(AppIconVariant.default.isAvailable)
+        XCTAssertTrue(AppIconVariant.available.contains(.default))
+    }
+
+    func test_availableVariants_allResolveToBundledArt() {
+        for variant in AppIconVariant.available {
+            guard let name = variant.iconName else { continue }   // .default
+            XCTAssertNotNil(UIImage(named: name),
+                            "\(name) is offered in the picker but has no imageset")
+        }
+    }
+
+    func test_available_isSubsetOfAllCases() {
+        let all = Set(AppIconVariant.allCases)
+        XCTAssertTrue(Set(AppIconVariant.available).isSubset(of: all))
+        XCTAssertLessThanOrEqual(AppIconVariant.available.count, all.count)
+    }
+
+    func test_everyAvailableAlternate_hasInfoPlistKey() {
+        let icons = Bundle.main.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any]
+        let alternates = icons?["CFBundleAlternateIcons"] as? [String: Any] ?? [:]
+
+        for variant in AppIconVariant.available {
+            guard let name = variant.iconName else { continue }
+            XCTAssertNotNil(alternates[name],
+                            "\(name) has art but no CFBundleAlternateIcons entry — it would fail to apply")
+        }
+    }
+
+    func test_unavailableVariant_throwsAssetMissing() async throws {
+        // Any variant without bundled art must be rejected before reaching UIKit.
+        let unavailable = AppIconVariant.allCases.filter { !$0.isAvailable }
+        guard let variant = unavailable.first else {
+            throw XCTSkip("All variants have art bundled — nothing to assert here.")
+        }
+
+        do {
+            try await AppIconManager.shared.setIcon(variant)
+            XCTFail("Expected setIcon to throw for \(variant.label)")
+        } catch let error as AppIconError {
+            // On the Simulator supportsAlternateIcons is false, so .notSupported is also valid.
+            switch error {
+            case .assetMissing, .notSupported: break
+            case .setFailed(let msg): XCTFail("Unexpected setFailed: \(msg)")
+            }
+        } catch {
+            XCTFail("Unexpected error type: \(error)")
+        }
     }
 }

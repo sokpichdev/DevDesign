@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Offline-first iOS toolkit for designers and developers — 19 tools, AI-powered palettes.</strong><br/>
-  <sub>No backend, no ads, no account required. Only the AI Palette feature touches the network.</sub>
+  <sub>No backend, no ads, no account required. Only the AI Palette and Google Fonts download touch the network.</sub>
 </p>
 
 <p align="center">
@@ -67,7 +67,7 @@
 | Component Snippets | Contrast Checker | SF Symbols | SF Symbol Detail |
 |---|---|---|---|
 | <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/components.gif" width="160"/> | <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/contrast_checker.gif" width="160"/> | <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/sf_symbols.gif" width="160"/> | <img src="https://raw.githubusercontent.com/sokpichdev/sokpichdev/main/projects/assets/devdesign/sf_symbols_detail.gif" width="160"/> |
-| ~80 SwiftUI snippets across 10 categories | WCAG AA & AAA compliance with suggested fixes | Search and filter SF Symbols | Copy-as-SwiftUI symbol detail view |
+| 54 SwiftUI snippets across 10 categories | WCAG AA & AAA compliance with suggested fixes | Search and filter SF Symbols | Copy-as-SwiftUI symbol detail view |
 
 ### Layout & Spacing
 
@@ -116,7 +116,7 @@
 ### Components & Layout
 - **Shadow Playground** — multi-layer shadow builder with code export
 - **Gradient Builder** — linear and radial gradient editor
-- **Component Snippets** — ~80 SwiftUI snippets across 10 categories with `{{ACCENT}}` token substitution
+- **Component Snippets** — 54 SwiftUI snippets across 10 categories with `{{ACCENT}}` token substitution
 - **Layout Inspector** — safe area, padding playground, and device presets
 
 ### Assets & Motion
@@ -150,20 +150,20 @@
 
 | Layer | Choice |
 |---|---|
-| **Language** | Swift 5.9 |
-| **UI** | SwiftUI (iOS 17+) |
+| **Language** | Swift 5.0 |
+| **UI** | SwiftUI (iOS 18.5+) |
 | **State** | `@Observable` macro |
 | **Architecture** | MVVM + Feature Modules |
 | **Persistence** | SwiftData |
 | **Sync** | CloudKit |
 | **Shaders** | Metal — `[[stitchable]]` functions via SwiftUI `ShaderLibrary` |
-| **Networking** | URLSession (AI Palette only) |
+| **Networking** | URLSession (AI Palette, Google Fonts) |
 | **AI Providers** | Anthropic (Claude), Google Gemini, OpenRouter |
 | **Font Loading** | CoreText, actor-based loader with request coalescing |
 | **Image Export** | `ImageRenderer` for app icons and shareable assets |
 | **Dependencies** | None — zero SPM packages |
 | **Min iOS** | 17.0 |
-| **Device** | iPhone only |
+| **Device** | iPhone (runs on iPad, not yet optimised) |
 
 ---
 
@@ -175,14 +175,14 @@ bar; a single dashboard grid in `ContentView` routes to each feature.
 
 ```mermaid
 graph TD
-    UI["Presentation<br/>(View / ViewModel, @Observable)"] --> Core["Core Services<br/>(HarmonyEngine, ContrastEngine, ExportService)"]
+    UI["Presentation<br/>(View / ViewModel, @Observable)"] --> Core["Core Services<br/>(Color+Harmony, Color+Contrast, ExportService)"]
     Core --> Data["SwiftData / CloudKit<br/>(SavedPalette, SavedColor)"]
 ```
 
 **Key decisions**
 - Every feature under `Features/` owns its `View`, `ViewModel`, and tests — no shared mega-ViewModel.
 - No tab bar; a single dashboard grid in `ContentView` routes to each tool.
-- State is managed with the `@Observable` macro (Swift 5.9), not Combine.
+- State is managed with the `@Observable` macro, not Combine.
 - Multi-provider AI sits behind one `AIProvider` protocol so Claude/Gemini/OpenRouter are interchangeable.
 
 ---
@@ -192,7 +192,7 @@ graph TD
 ```
 DevDesign/
 ├── App/                    # App entry point, ContentView dashboard grid
-├── Core/                   # HarmonyEngine, ContrastEngine, ExportService, shared utilities
+├── Core/                   # Color+Harmony, Color+Contrast, ExportService, shared utilities
 ├── DesignSystem/           # Shared design tokens and reusable UI primitives
 ├── Features/               # One folder per tool (View + ViewModel + tests), e.g.
 │                            # PaletteGenerator/, ColorPicker/, ContrastChecker/, TypeScale/,
@@ -211,7 +211,7 @@ DevDesign/
 
 ### Requirements
 - macOS with Xcode 15+
-- iOS 17+ Simulator or device
+- iOS 18.5+ Simulator or device
 - No third-party dependencies to install
 
 ### Clone
@@ -273,4 +273,4 @@ feature files.
 
 **Sok Pich** — [@sokpichdev](https://github.com/sokpichdev) · [sokpich.dev/devdesign](https://sokpich.dev/devdesign)
 
-<sub>iOS 17+ · iPhone only · Offline-first</sub>
+<sub>iOS 18.5+ · iPhone · Offline-first</sub>
