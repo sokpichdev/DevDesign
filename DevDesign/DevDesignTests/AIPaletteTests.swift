@@ -13,18 +13,38 @@ final class AIPaletteTests: XCTestCase {
 
     var vm: AIPaletteViewModel!
 
+    /// These tests were written against the single-provider API. Pinning the selected
+    /// provider to a key-requiring one (OpenRouter's free tier needs no key) keeps their
+    /// original intent — "no key means you cannot generate" — intact.
+    private static let testProvider: AIProvider = .anthropic
+
     override func setUp() {
         super.setUp()
-        vm = AIPaletteViewModel()
-        // Clear any persisted state from previous runs
-        APIKeyStore.clear()
+        // Clear any persisted state from previous runs *before* building the view model,
+        // so it initialises from a known-empty store.
+        clearAllKeys()
+        ProviderKeyStore.saveSelectedProvider(Self.testProvider)
         PromptHistoryStore.clear()
+
+        vm = AIPaletteViewModel()
+        vm.selectedProvider = Self.testProvider
     }
 
     override func tearDown() {
-        APIKeyStore.clear()
+        clearAllKeys()
         PromptHistoryStore.clear()
         super.tearDown()
+    }
+
+    private func clearAllKeys() {
+        for provider in AIProvider.allCases {
+            ProviderKeyStore.clearKey(for: provider)
+        }
+    }
+
+    /// Sets the key for the provider under test, mirroring the old `vm.apiKey = …`.
+    private func setTestKey(_ key: String) {
+        vm.anthropicKey = key
     }
 
     // MARK: ─── Initial State ─────────────────────────────────────
@@ -66,19 +86,19 @@ final class AIPaletteTests: XCTestCase {
     }
 
     func test_canGenerate_falseWithoutPrompt() {
-        vm.apiKey = "sk-ant-test-key"
+        setTestKey("sk-ant-test-key")
         vm.promptText = ""
         XCTAssertFalse(vm.canGenerate)
     }
 
     func test_canGenerate_trueWithKeyAndPrompt() {
-        vm.apiKey = "sk-ant-test-key"
+        setTestKey("sk-ant-test-key")
         vm.promptText = "sunset over the ocean"
         XCTAssertTrue(vm.canGenerate)
     }
 
     func test_canGenerate_falseWhileGenerating() {
-        vm.apiKey = "sk-ant-test-key"
+        setTestKey("sk-ant-test-key")
         vm.promptText = "sunset"
         vm.generationState = .generating
         XCTAssertFalse(vm.canGenerate)
@@ -87,33 +107,37 @@ final class AIPaletteTests: XCTestCase {
     // MARK: ─── API Key Management ────────────────────────────────
 
     func test_saveAPIKey_setsHasAPIKey() {
+        vm.showKeyConfiguration(for: Self.testProvider)
         vm.apiKeyInput = "sk-ant-api03-testkey"
         vm.saveAPIKey()
         XCTAssertTrue(vm.hasAPIKey)
     }
 
     func test_saveAPIKey_persists() {
+        vm.showKeyConfiguration(for: Self.testProvider)
         vm.apiKeyInput = "sk-ant-api03-persisted"
         vm.saveAPIKey()
-        XCTAssertEqual(APIKeyStore.load(), "sk-ant-api03-persisted")
+        XCTAssertEqual(ProviderKeyStore.loadKey(for: Self.testProvider), "sk-ant-api03-persisted")
     }
 
     func test_saveAPIKey_emptyIgnored() {
+        vm.showKeyConfiguration(for: Self.testProvider)
         vm.apiKeyInput = "   "
         vm.saveAPIKey()
         XCTAssertFalse(vm.hasAPIKey)
     }
 
     func test_clearAPIKey_removesKey() {
+        vm.showKeyConfiguration(for: Self.testProvider)
         vm.apiKeyInput = "sk-ant-api03-clear"
         vm.saveAPIKey()
         vm.clearAPIKey()
         XCTAssertFalse(vm.hasAPIKey)
-        XCTAssertNil(APIKeyStore.load())
+        XCTAssertNil(ProviderKeyStore.loadKey(for: Self.testProvider))
     }
 
     func test_maskedKey_showsStars() {
-        vm.apiKey = "sk-ant-api03-abcdefghijklmno"
+        setTestKey("sk-ant-api03-abcdefghijklmno")
         let masked = vm.maskedKey
         XCTAssertTrue(masked.contains("•"))
         XCTAssertTrue(masked.hasPrefix("sk-ant-"))
@@ -141,7 +165,7 @@ final class AIPaletteTests: XCTestCase {
 
     func test_filteredSuggestions_allCategory_returnsAll() {
         vm.selectedSuggestionCategory = nil
-        XCTAssertEqual(vm.filteredSuggestions, vm.suggestions)
+        XCTAssertEqual(vm.filteredSuggestions.map(\.id), vm.suggestions.map(\.id))
     }
 
     func test_filteredSuggestions_byCategory() {
@@ -342,6 +366,7 @@ final class AIPaletteTests: XCTestCase {
                 prompt: "test",
                 style: .any,
                 colorCount: .six,
+                provider: Self.testProvider,
                 apiKey: ""
             )
             XCTFail("Should have thrown")
@@ -358,6 +383,7 @@ final class AIPaletteTests: XCTestCase {
                 prompt: "test",
                 style: .any,
                 colorCount: .six,
+                provider: Self.testProvider,
                 apiKey: "   "
             )
             XCTFail("Should have thrown")
@@ -390,21 +416,22 @@ final class AIPaletteTests: XCTestCase {
         XCTAssertEqual(ColorCount.eight.rawValue, 8)
     }
 
-    // MARK: ─── APIKeyStore ────────────────────────────────────────
+    // MARK: ─── ProviderKeyStore ──────────────────────────────────
 
     func test_apiKeyStore_saveAndLoad() {
-        APIKeyStore.save("sk-ant-test")
-        XCTAssertEqual(APIKeyStore.load(), "sk-ant-test")
+        ProviderKeyStore.saveKey("sk-ant-test", for: Self.testProvider)
+        XCTAssertEqual(ProviderKeyStore.loadKey(for: Self.testProvider), "sk-ant-test")
     }
 
     func test_apiKeyStore_clear() {
-        APIKeyStore.save("sk-ant-test")
-        APIKeyStore.clear()
-        XCTAssertNil(APIKeyStore.load())
+        ProviderKeyStore.saveKey("sk-ant-test", for: Self.testProvider)
+        ProviderKeyStore.clearKey(for: Self.testProvider)
+        XCTAssertNil(ProviderKeyStore.loadKey(for: Self.testProvider))
     }
 
     func test_maskedDisplay_showsStars() {
-        let result = APIKeyStore.maskedDisplay("sk-ant-api03-abcXYZ1234")
+        let result = ProviderKeyStore.maskedDisplay("sk-ant-api03-abcXYZ1234",
+                                                   for: Self.testProvider)
         XCTAssertTrue(result.contains("•"))
         XCTAssertTrue(result.hasPrefix("sk-ant-"))
         XCTAssertTrue(result.hasSuffix("1234"))
