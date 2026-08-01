@@ -168,7 +168,6 @@ struct DashboardView: View {
 struct FeatureCardView: View {
 
     let card: FeatureCard
-    @State private var isPressed = false
 
     var body: some View {
         NavigationLink(destination: card.destination) {
@@ -203,18 +202,23 @@ struct FeatureCardView: View {
                 RoundedRectangle(cornerRadius: DSSpacing.Radius.md)
                     .strokeBorder(DSColors.Preview.borderSubtle, lineWidth: 1)
             )
-            .scaleEffect(isPressed ? 0.96 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
         }
-        .buttonStyle(.plain)
-//        .simultaneousGesture(
-//            DragGesture(minimumDistance: 0)
-//                .onChanged { _ in isPressed = true }
-//                .onEnded   { _ in isPressed = false }
-//        )
-        .onTapGesture {
-            isPressed = true
-        }
+        .buttonStyle(PressableCardStyle())
+    }
+}
+
+// MARK: - Press Effect
+
+/// Scales its content down while pressed.
+///
+/// Replaces manual `isPressed` tracking: a plain `.onTapGesture` cannot observe touch-up,
+/// so cards stayed stuck in the pressed state once tapped. `ButtonStyle` gets both edges.
+struct PressableCardStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7),
+                       value: configuration.isPressed)
     }
 }
 
@@ -361,7 +365,7 @@ struct FeatureCard: Identifiable {
         ),
         FeatureCard(
             title: "Component Snippets",
-            subtitle: "80+ SwiftUI components",
+            subtitle: "54 SwiftUI components",
             icon: "rectangle.3.group.fill",
             accentColor: Color(hex: "#32D74B"),
             phase: 3,
@@ -458,29 +462,6 @@ struct ComingSoonItem: Identifiable {
     let phase: String
 
     static var all: [ComingSoonItem] = []
-}
-
-// MARK: - Placeholder
-struct PlaceholderView: View {
-    let title: String
-    var body: some View {
-        ZStack {
-            DSColors.Preview.backgroundPrimary.ignoresSafeArea()
-            VStack(spacing: DSSpacing.md) {
-                Image(systemName: "wrench.and.screwdriver")
-                    .font(.system(size: 40))
-                    .foregroundStyle(DSColors.Preview.accent)
-                Text(title)
-                    .font(DSTypography.displaySmall)
-                    .foregroundStyle(DSColors.Preview.textPrimary)
-                Text("Coming in the next step")
-                    .font(DSTypography.bodyMedium)
-                    .foregroundStyle(DSColors.Preview.textSecondary)
-            }
-        }
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-    }
 }
 
 // MARK: - Preview
