@@ -286,7 +286,11 @@ final class AnimationPlaygroundTests: XCTestCase {
     }
 
     func test_f_twoDecimals() {
-        XCTAssertEqual(AnimationExportService.f(0.825), "0.83")
+        // Avoid exact .xx5 literals: 0.825 is not representable in binary (it stores as
+        // 0.8249999…), so %.2f correctly yields "0.82" and the test would be asserting
+        // a rounding tie that never occurs.
+        XCTAssertEqual(AnimationExportService.f(0.826), "0.83")
+        XCTAssertEqual(AnimationExportService.f(0.824), "0.82")
     }
 
     // MARK: ─── Copy Toast ────────────────────────────────────────
