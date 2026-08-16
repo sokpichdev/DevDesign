@@ -51,6 +51,34 @@
         <key>CFBundleAlternateIcons</key>
         <dict>
 
+            <key>AppIcon-Prism</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Prism</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+            <key>AppIcon-Layers</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Layers</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+            <key>AppIcon-Vector</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Vector</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
+            <key>AppIcon-Ribbon</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array><string>AppIcon-Ribbon</string></array>
+                <key>UIPrerenderedIcon</key><false/>
+            </dict>
+
             <key>AppIcon-Dark</key>
             <dict>
                 <key>CFBundleIconFiles</key>

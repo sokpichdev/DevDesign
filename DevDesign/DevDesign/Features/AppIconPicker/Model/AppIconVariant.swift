@@ -13,6 +13,10 @@ import UIKit
 /// `nil` iconName = the primary icon (AppIcon).
 enum AppIconVariant: String, CaseIterable, Identifiable {
     case `default`  = "Default"
+    case prism      = "Prism"
+    case layers     = "Layers"
+    case vector     = "Vector"
+    case ribbon     = "Ribbon"
     case dark       = "Dark"
     case minimal    = "Minimal"
     case neon       = "Neon"
@@ -35,7 +39,11 @@ enum AppIconVariant: String, CaseIterable, Identifiable {
     /// Short descriptor shown beneath the label.
     var description: String {
         switch self {
-        case .default:  return "Purple gradient · Default"
+        case .default:  return "Glass Prism · Primary"
+        case .prism:    return "Glass D & Code · Spectrum"
+        case .layers:   return "Isometric Glass · Multi-tool"
+        case .vector:   return "Precision Nib · Dark metallic"
+        case .ribbon:   return "Continuous Monogram · Sunset"
         case .dark:     return "Near-black · Subtle purple"
         case .minimal:  return "White · Clean & light"
         case .neon:     return "Black · Electric green"
@@ -50,6 +58,10 @@ enum AppIconVariant: String, CaseIterable, Identifiable {
     var accent: Color {
         switch self {
         case .default:  return Color(hex: "#7B6EF6")
+        case .prism:    return Color(hex: "#7B6EF6")
+        case .layers:   return Color(hex: "#64D2FF")
+        case .vector:   return Color(hex: "#FF9F0A")
+        case .ribbon:   return Color(hex: "#FF6CAB")
         case .dark:     return Color(hex: "#7B6EF6")
         case .minimal:  return Color(hex: "#7B6EF6")
         case .neon:     return Color(hex: "#30D158")
